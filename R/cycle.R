@@ -14,9 +14,9 @@ cycle <- function(sequences) {
 
   preds <- basiliskRun(cl, fun=function(seqs) {
     print("Entered basilisk Run")
-    X <- reticulate::import("dnacycpv2_python")
+    # X <- reticulate::import("dnacycpv2_python")
     print("Imported python scripts")
-    res = X$cycle(sequences)
+    res = dnacycpv2_python$cycle(sequences)
     res
   }, seqs=sequences)
 
