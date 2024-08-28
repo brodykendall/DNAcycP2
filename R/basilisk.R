@@ -8,7 +8,3 @@ env1 <- BasiliskEnvironment("env1", pkgname="dnacycpv2",
                             pip=c('numpy==1.26.1',
                                   'bio==1.7.1'),
                             path="dnacycpv2_python")
-
-#' @importFrom basilisk BasiliskEnvironment
-env2 <- BasiliskEnvironment("env2", pkgname="dnacycpv2",
-                            packages=character(0), path="dnacycpv2_python")
