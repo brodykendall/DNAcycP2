@@ -7,4 +7,4 @@ env1 <- BasiliskEnvironment("env1", pkgname="dnacycpv2",
                                        'docopt==0.6.2'),
                             pip=c('numpy==1.26.1',
                                   'bio==1.7.1'),
-                            paths=c('dnacycpv2_python'))
+                            path=c('dnacycpv2_python'))
