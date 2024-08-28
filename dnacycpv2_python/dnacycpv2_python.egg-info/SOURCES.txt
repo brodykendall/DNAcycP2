@@ -1,0 +1,6 @@
+setup.py
+dnacycpv2_python.egg-info/PKG-INFO
+dnacycpv2_python.egg-info/SOURCES.txt
+dnacycpv2_python.egg-info/dependency_links.txt
+dnacycpv2_python.egg-info/not-zip-safe
+dnacycpv2_python.egg-info/top_level.txt

@@ -1,19 +1,16 @@
 Package: dnacycpv2
-Title: What the Package Does (One Line, Title Case)
+Title: DNAcycPV2
 Version: 0.0.0.9000
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-  Imports:
-    'numpy==1.26.1',
-    'pandas==2.1.2',
-    'tensorflow==2.14.0',
-    'keras==2.14.0',
-    'bio==1.7.1',
-    'docopt==0.6.2'
+Description: Predicts DNA cyclizability for sequences/subsequences of length 50
+Imports:
+  basilisk,
+  reticulate
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+StagedInstall: no
