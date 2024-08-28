@@ -16,6 +16,9 @@ cycle <- function(sequences) {
   preds <- basiliskRun(cl, fun=function(seqs) {
     print("Entered basilisk Run with env1")
     path_to_python <- system.file("python", package = "dnacycpv2")
+    print("Trying to load irlstm:")
+    irlstm <- system.file("python/irlstm", package = "dnacycpv2")
+    print(irlstm)
     X = reticulate::import_from_path("dnacycpv2_python", path = path_to_python)
     # X <- reticulate::import("dnacycpv2_python")
     print("Imported python scripts")
