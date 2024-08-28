@@ -16,7 +16,7 @@ Options:
     
 """
 from docopt import docopt
-from dnacycpv2 import cycle_fasta, cycle_txt
+from dnacycpv2_python import cycle_fasta, cycle_txt
 import keras
 import pandas as pd
 import numpy as np

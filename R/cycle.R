@@ -12,7 +12,7 @@ cycle <- function(sequences) {
   on.exit(basiliskStop(cl))
 
   preds <- basiliskRun(cl, fun=function(seqs) {
-    X <- reticulate::import("dnacycpv2")
+    X <- reticulate::import("dnacycpv2_python")
     res = X$cycle(sequences)
     res
   }, seqs=sequences)
