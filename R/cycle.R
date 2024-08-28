@@ -9,12 +9,12 @@
 #' @importFrom basilisk basiliskStart basiliskRun basiliskStop
 cycle <- function(sequences) {
   # cl <- basiliskStart(env1)
-  cl <- basiliskStart(env3)
+  cl <- basiliskStart(env2)
   print("Started basilisk environment")
   on.exit(basiliskStop(cl))
 
   preds <- basiliskRun(cl, fun=function(seqs) {
-    print("Entered basilisk Run")
+    print("Entered basilisk Run with env2")
     X <- reticulate::import("dnacycpv2_python")
     print("Imported python scripts")
     res = X$cycle(sequences)
