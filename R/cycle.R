@@ -22,7 +22,7 @@ cycle <- function(sequences) {
     X = reticulate::import_from_path("dnacycpv2_python", path = path_to_python)
     # X <- reticulate::import("dnacycpv2_python")
     print("Imported python scripts")
-    res = X$cycle(sequences)
+    res = X$cycle(sequences, irlstm)
     res
   }, seqs=sequences)
 

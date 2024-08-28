@@ -4,7 +4,6 @@ import numpy as np
 from numpy import array
 from Bio import SeqIO
 
-network_final = keras.models.load_model("irlstm")
 detrend_int = 0.001641373848542571
 detrend_slope = 1.0158132314682007
 # Mean and stdev of smoothed C0 for Tiling library:
@@ -24,7 +23,8 @@ def dnaOneHot(sequence):
     return onehot_encoded_seq
 
 #TODO: FIXME
-def cycle_fasta(inputfile, outputbase):
+def cycle_fasta(inputfile, outputbase, folder_path):
+    network_final = keras.models.load_model(folder_path)
     genome_file = SeqIO.parse(open(inputfile),'fasta')
     for fasta in genome_file:
         chrom = fasta.id
@@ -63,7 +63,8 @@ def cycle_fasta(inputfile, outputbase):
         fitall.to_csv(outputbase+"_cycle_"+chrom+".txt", index = False)
         print("Output file: "+outputbase+"_cycle_"+chrom+".txt")
 
-def cycle(sequences):
+def cycle(sequences, folder_path):
+    network_final = keras.models.load_model(folder_path)
     X = []
     all50 = True
     print("Reading sequences...")
