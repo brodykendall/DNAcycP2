@@ -8,9 +8,9 @@
 #' @importFrom reticulate import
 #' @importFrom basilisk basiliskStart basiliskRun basiliskStop
 cycle <- function(sequences) {
-  # cl <- basiliskStart(env1)
-  cl <- basiliskStart(env2)
-  print("Started basilisk environment")
+  cl <- basiliskStart(env1)
+  # cl <- basiliskStart(env2)
+  print("Started basilisk environment 1")
   on.exit(basiliskStop(cl))
 
   preds <- basiliskRun(cl, fun=function(seqs) {
