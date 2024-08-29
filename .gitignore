@@ -1,5 +1,5 @@
 .Rproj.user
-# dnacycpv2_python/__pycache__/*
+.Rhistory
 .DS_Store
 dnacycpv2.Rproj
 inst/python/dnacycpv2_python/__pycache__/*

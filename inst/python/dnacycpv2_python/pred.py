@@ -23,9 +23,10 @@ def dnaOneHot(sequence):
     return onehot_encoded_seq
 
 #TODO: FIXME
-def cycle_fasta(inputfile, outputbase, folder_path):
+def cycle_fasta(inputfile, folder_path):
     network_final = keras.models.load_model(folder_path)
     genome_file = SeqIO.parse(open(inputfile),'fasta')
+    ret = {}
     for fasta in genome_file:
         chrom = fasta.id
         genome_sequence = str(fasta.seq)
@@ -58,10 +59,11 @@ def cycle_fasta(inputfile, outputbase, folder_path):
         n = fit.shape[0]
         fitall = np.vstack((range(25,25+n),fit,fit2))
         fitall = pd.DataFrame([*zip(*fitall)])
-        fitall.columns = ["posision","c_score_norm","c_score_unnorm"]
-        fitall = fitall.astype({"posision": int})
-        fitall.to_csv(outputbase+"_cycle_"+chrom+".txt", index = False)
-        print("Output file: "+outputbase+"_cycle_"+chrom+".txt")
+        fitall.columns = ["position","c_score_norm","c_score_unnorm"]
+        fitall = fitall.astype({"position": int})
+        ret["cycle_"+chrom] = fitall
+    
+    return ret
 
 def cycle(sequences, folder_path):
     network_final = keras.models.load_model(folder_path)
@@ -109,9 +111,9 @@ def cycle(sequences, folder_path):
             cycle_local = detrend_int + (cycle_local + cycle_local_reverse) * detrend_slope/2
             cycle_local = cycle_local.reshape(cycle_local.shape[0])
             output_cycle.append(cycle_local)
-            output_cycle2 = [item * normal_std + normal_mean for item in output_cycle]
             if j%10==9:
                 print(f"Completed {j+1} out of {lenX} total sequences")
+        output_cycle2 = [item * normal_std + normal_mean for item in output_cycle]
 
     ret = {"norm": output_cycle,
            "unnorm": output_cycle2}
