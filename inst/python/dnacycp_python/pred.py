@@ -22,7 +22,6 @@ def dnaOneHot(sequence):
         onehot_encoded_seq.append(onehot_encoded[0:4])
     return onehot_encoded_seq
 
-#TODO: FIXME
 def cycle_fasta(inputfile, folder_path):
     network_final = keras.models.load_model(folder_path)
     genome_file = SeqIO.parse(open(inputfile),'fasta')
@@ -33,7 +32,8 @@ def cycle_fasta(inputfile, folder_path):
         onehot_sequence = dnaOneHot(genome_sequence)
         onehot_sequence = array(onehot_sequence)
         onehot_sequence = onehot_sequence.reshape((onehot_sequence.shape[0],4,1))
-        print("sequence length: "+chrom+" "+str(onehot_sequence.shape[0]))
+        print(f"Sequence length for ID {chrom}: {str(onehot_sequence.shape[0])}")
+        print("Predicting cyclizability...")
         fit = []
         fit_reverse = []
         for ind_local in np.array_split(range(25, onehot_sequence.shape[0]-24), 100):
@@ -44,10 +44,10 @@ def cycle_fasta(inputfile, folder_path):
             onehot_sequence_local = array(onehot_sequence_local)
             onehot_sequence_local = onehot_sequence_local.reshape((onehot_sequence_local.shape[0],50,4,1))
             onehot_sequence_local_reverse = np.flip(onehot_sequence_local,[1,2])
-            fit_local = network_final.predict(onehot_sequence_local)
+            fit_local = network_final.predict(onehot_sequence_local, verbose=0)
             fit_local = fit_local.reshape((fit_local.shape[0]))
             fit.append(fit_local)
-            fit_local_reverse = network_final.predict(onehot_sequence_local_reverse)
+            fit_local_reverse = network_final.predict(onehot_sequence_local_reverse, verbose=0)
             fit_local_reverse = fit_local_reverse.reshape((fit_local_reverse.shape[0]))
             fit_reverse.append(fit_local_reverse)
         fit = [item for sublist in fit for item in sublist]

@@ -1,5 +1,5 @@
 #' @importFrom basilisk BasiliskEnvironment
-env1 <- BasiliskEnvironment("env1", pkgname="dnacycpv2",
+env1 <- BasiliskEnvironment("env1", pkgname="dnacycp",
                             packages=c('python==3.11',
                                        'pandas==2.1.2',
                                        'tensorflow==2.14.0',
@@ -7,4 +7,4 @@ env1 <- BasiliskEnvironment("env1", pkgname="dnacycpv2",
                                        'docopt==0.6.2'),
                             pip=c('numpy==1.26.1',
                                   'bio==1.7.1'),
-                            path="dnacycpv2_python")
+                            path="dnacycp_python")

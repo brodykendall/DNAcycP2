@@ -1,7 +1,7 @@
 .Rproj.user
 .Rhistory
 .DS_Store
-dnacycpv2.Rproj
-inst/python/dnacycpv2_python/__pycache__/*
-inst/python/dnacycpv2_python/build/*
-inst/python/dnacycpv2_python/dnacycpv2_python.egg-info/*
+dnacycp.Rproj
+inst/python/dnacycp_python/__pycache__/*
+inst/python/dnacycp_python/build/*
+inst/python/dnacycp_python/dnacycpv2_python.egg-info/*

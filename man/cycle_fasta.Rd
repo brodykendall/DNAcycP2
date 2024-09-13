@@ -4,15 +4,21 @@
 \alias{cycle_fasta}
 \title{Predict Cyclizability}
 \usage{
-cycle_fasta(file_path)
+cycle_fasta(file_path, smooth)
 }
 \arguments{
+\item{smooth}{Whether to predict smoothed C0 (DNAcycP2) or original C0 (DNAcycP)}
+
 \item{input_file}{.fasta input file path}
 }
 \value{
-A list of predictions for each ID in the .fasta file. Each list item has
-the following columns: position, c_score_norm (predictions on a normalized scale),
-and c_score_unnorm (predictions on an unnormalized scale)
+A list of predictions for each ID in the .fasta file.
+
+Each list item has the following columns: position, c_score_norm (predictions
+on a normalized scale), and c_score_unnorm (predictions on an unnormalized
+scale).
+
+Each list item is named "cycle_{id}" corresponding to the fasta id
 }
 \description{
 This predicts cyclizability for all subsequences of length 50bp from a .fasta input file.

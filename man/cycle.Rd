@@ -4,10 +4,12 @@
 \alias{cycle}
 \title{Predict Cyclizability}
 \usage{
-cycle(sequences)
+cycle(sequences, smooth)
 }
 \arguments{
 \item{sequences}{A list or vector of sequences}
+
+\item{smooth}{Whether to predict smoothed C0 (DNAcycP2) or original C0 (DNAcycP)}
 }
 \value{
 A list of (1) predictions on a normalized scale, (2) predictions on an unnormalized scale
