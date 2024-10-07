@@ -2,7 +2,8 @@ Package: dnacycp
 Title: Predicts DNA cyclizability for sequences/subsequences of length 50
 Version: 0.99.0
 Authors@R: 
-    person("Brody", "Kendall", email = "curtiskendall2025@u.northwestern.edu", role = c("aut", "cre"))
+    person("Brody", "Kendall", email = "curtiskendall2025@u.northwestern.edu", role = c("aut"))
+    person("Ji-Ping", "Wang", email = "jzwang@northwestern.edu", role = c("aut", "cre"))
 Description: Predicts DNA cyclizability for sequences/subsequences of length 50
 Imports:
   basilisk,
@@ -15,3 +16,6 @@ RoxygenNote: 7.3.2
 StagedInstall: no
 BinaryFiles: inst/python/irlstm/saved_model.pb, inst/python/irlstm_smooth/saved_model.pb
 biocViews: NeuralNetwork, StructuralPrediction
+VignetteBuilder: knitr
+Suggests: knitr, rmarkdown
+LazyData: false

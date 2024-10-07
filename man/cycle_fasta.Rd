@@ -23,3 +23,7 @@ Each list item is named "cycle_{id}" corresponding to the fasta id
 \description{
 This predicts cyclizability for all subsequences of length 50bp from a .fasta input file.
 }
+\examples{
+# Example usage of cycle_fasta
+cycle_fasta("path/to/fasta/file.fasta",smooth=TRUE)
+}

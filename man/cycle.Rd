@@ -17,3 +17,7 @@ A list of (1) predictions on a normalized scale, (2) predictions on an unnormali
 \description{
 This predicts cyclizability for a set of sequences.
 }
+\examples{
+# Example usage of cycle
+cycle(sequences, smooth=TRUE) # where sequences is a list/vector of sequences
+}

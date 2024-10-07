@@ -5,3 +5,5 @@ dnacycp.Rproj
 inst/python/dnacycp_python/__pycache__/*
 inst/python/dnacycp_python/build/*
 inst/python/dnacycp_python/dnacycpv2_python.egg-info/*
+inst/.DS_Store
+inst/python/.DS_Store
