@@ -8,10 +8,13 @@
 #' @export
 #' @importFrom reticulate import_from_path
 #' @importFrom basilisk basiliskStart basiliskRun basiliskStop
+#' @examples
+#' # Example usage of cycle
+#' cycle(sequences, smooth=TRUE) # where sequences is a list/vector of sequences
 cycle <- function(sequences, smooth) {
   cl <- basiliskStart(env1)
   on.exit(basiliskStop(cl))
-
+  
   preds <- basiliskRun(cl, fun=function(seqs) {
     path_to_python <- system.file("python", package = "dnacycp")
     if (smooth) {
@@ -22,11 +25,11 @@ cycle <- function(sequences, smooth) {
       print("Predicting original C0:")
       irlstm <- system.file("python/irlstm", package = "dnacycp")
     }
-    X = reticulate::import_from_path("dnacycp_python", path = path_to_python)
-    res = X$cycle(sequences, irlstm)
+    X <- reticulate::import_from_path("dnacycp_python", path = path_to_python)
+    res <- X$cycle(sequences, irlstm)
     res
   }, seqs=sequences)
-
+  
   preds
 }
 
@@ -48,6 +51,9 @@ cycle <- function(sequences, smooth) {
 #' @export
 #' @importFrom reticulate import_from_path
 #' @importFrom basilisk basiliskStart basiliskRun basiliskStop
+#' @examples
+#' # Example usage of cycle_fasta
+#' cycle_fasta("path/to/fasta/file.fasta",smooth=TRUE)
 cycle_fasta <- function(file_path, smooth) {
   cl <- basiliskStart(env1)
   on.exit(basiliskStop(cl))
@@ -62,8 +68,8 @@ cycle_fasta <- function(file_path, smooth) {
       print("Predicting original C0:")
       irlstm <- system.file("python/irlstm", package = "dnacycp")
     }
-    X = reticulate::import_from_path("dnacycp_python", path = path_to_python)
-    res = X$cycle_fasta(input_file, irlstm)
+    X <- reticulate::import_from_path("dnacycp_python", path = path_to_python)
+    res <- X$cycle_fasta(input_file, irlstm)
     res
   }, input_file=file_path)
   

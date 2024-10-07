@@ -11,15 +11,41 @@ detrend_slope = 1.0158132314682007
 normal_mean = -0.011196041799376931
 normal_std = 0.651684644408004
 
+# def dnaOneHot(sequence):
+#     seq_array = array(list(sequence))
+#     code = {"A": [0], "C": [1], "G": [2], "T": [3], "N": [4],
+#             "a": [0], "c": [1], "g": [2], "t": [3], "n": [4]}
+#     onehot_encoded_seq = []
+#     for char in seq_array:
+#         onehot_encoded = np.zeros(5)
+#         onehot_encoded[code[char]] = 1
+#         onehot_encoded_seq.append(onehot_encoded[0:4])
+#     return onehot_encoded_seq
+
 def dnaOneHot(sequence):
-    seq_array = array(list(sequence))
-    code = {"A": [0], "C": [1], "G": [2], "T": [3], "N": [4],
-            "a": [0], "c": [1], "g": [2], "t": [3], "n": [4]}
-    onehot_encoded_seq = []
-    for char in seq_array:
-        onehot_encoded = np.zeros(5)
-        onehot_encoded[code[char]] = 1
-        onehot_encoded_seq.append(onehot_encoded[0:4])
+    code = np.array([
+        [1, 0, 0, 0],  # A / a
+        [0, 1, 0, 0],  # C / c
+        [0, 0, 1, 0],  # G / g
+        [0, 0, 0, 1],  # T / t
+        [0, 0, 0, 0]   # N / n
+    ])
+    
+    mapping = np.zeros(128, dtype=int)
+    mapping[ord('A')] = 0
+    mapping[ord('C')] = 1
+    mapping[ord('G')] = 2
+    mapping[ord('T')] = 3
+    mapping[ord('N')] = 4
+    mapping[ord('a')] = 0
+    mapping[ord('c')] = 1
+    mapping[ord('g')] = 2
+    mapping[ord('t')] = 3
+    mapping[ord('n')] = 4
+
+    indices = np.fromiter((mapping[ord(char)] for char in sequence), dtype=int)
+    onehot_encoded_seq = code[indices]
+
     return onehot_encoded_seq
 
 def cycle_fasta(inputfile, folder_path):
@@ -29,20 +55,31 @@ def cycle_fasta(inputfile, folder_path):
     for fasta in genome_file:
         chrom = fasta.id
         genome_sequence = str(fasta.seq)
+        print(f"Sequence length for ID {chrom}: {len(genome_sequence)}")
         onehot_sequence = dnaOneHot(genome_sequence)
         onehot_sequence = array(onehot_sequence)
         onehot_sequence = onehot_sequence.reshape((onehot_sequence.shape[0],4,1))
-        print(f"Sequence length for ID {chrom}: {str(onehot_sequence.shape[0])}")
         print("Predicting cyclizability...")
         fit = []
         fit_reverse = []
-        for ind_local in np.array_split(range(25, onehot_sequence.shape[0]-24), 100):
-            onehot_sequence_local = []
-            for i in ind_local:
-                s = onehot_sequence[(i-25):(i+25),]
-                onehot_sequence_local.append(s)
-            onehot_sequence_local = array(onehot_sequence_local)
+        for start_ind in range(25, onehot_sequence.shape[0] - 24, 1000000):
+            end_ind = min(start_ind + 1000000, onehot_sequence.shape[0] - 24)
+            ind_local = np.arange(start_ind, end_ind)
+            # print(f"ind_local[0]: {ind_local[0]}, ind_local[-1]: {ind_local[-1]}")
+        # for ind_local in np.array_split(range(25, onehot_sequence.shape[0]-24), 100):
+            # onehot_sequence_local = []
+            # for i in ind_local:
+            #     s = onehot_sequence[(i-25):(i+25),]
+            #     onehot_sequence_local.append(s)
+            # onehot_sequence_local = array(onehot_sequence_local)
+            onehot_sequence_local = onehot_sequence[np.arange(ind_local[0] - 25, ind_local[-1] - 24)[:, None] + np.arange(50)]
+
+            # print(f"Onehot sequence shape pre reshape: {onehot_sequence_local.shape}")
+
             onehot_sequence_local = onehot_sequence_local.reshape((onehot_sequence_local.shape[0],50,4,1))
+
+            # print(f"Onehot sequence shape post reshape: {onehot_sequence_local.shape}")
+
             onehot_sequence_local_reverse = np.flip(onehot_sequence_local,[1,2])
             fit_local = network_final.predict(onehot_sequence_local, verbose=0)
             fit_local = fit_local.reshape((fit_local.shape[0]))
@@ -50,18 +87,34 @@ def cycle_fasta(inputfile, folder_path):
             fit_local_reverse = network_final.predict(onehot_sequence_local_reverse, verbose=0)
             fit_local_reverse = fit_local_reverse.reshape((fit_local_reverse.shape[0]))
             fit_reverse.append(fit_local_reverse)
-        fit = [item for sublist in fit for item in sublist]
-        fit = array(fit)
-        fit_reverse = [item for sublist in fit_reverse for item in sublist]
-        fit_reverse = array(fit_reverse)
-        fit = detrend_int + (fit + fit_reverse) * detrend_slope/2
+            if onehot_sequence.shape[0] > 10**7:
+                print(f"\t Completed predictions on {start_ind-25+onehot_sequence_local.shape[0]} out of {onehot_sequence.shape[0]-49} sequences")
+            # else:
+            #     print(f"\t #FIXME REMOVE: Completed predictions on {start_ind-25+onehot_sequence_local.shape[0]} out of {onehot_sequence.shape[0]-49} sequences")
+        # fit = [item for sublist in fit for item in sublist]
+        # fit = array(fit)
+        # fit_reverse = [item for sublist in fit_reverse for item in sublist]
+        # fit_reverse = array(fit_reverse)
+        # fit = detrend_int + (fit + fit_reverse) * detrend_slope/2
+        # fit2 = fit * normal_std + normal_mean
+        # n = fit.shape[0]
+        # fitall = np.vstack((range(25,25+n),fit,fit2))
+        # fitall = pd.DataFrame([*zip(*fitall)])
+        # fitall.columns = ["position","c_score_norm","c_score_unnorm"]
+        # fitall = fitall.astype({"position": int})
+        # ret["cycle_"+chrom] = fitall
+
+        fit = np.concatenate(fit)  # Assuming fit is a list of arrays
+        fit_reverse = np.concatenate(fit_reverse)
+        fit = detrend_int + (fit + fit_reverse) * detrend_slope / 2
         fit2 = fit * normal_std + normal_mean
         n = fit.shape[0]
-        fitall = np.vstack((range(25,25+n),fit,fit2))
-        fitall = pd.DataFrame([*zip(*fitall)])
-        fitall.columns = ["position","c_score_norm","c_score_unnorm"]
+        positions = np.arange(25, 25 + n)
+        fitall = np.column_stack((positions, fit, fit2))
+        fitall = pd.DataFrame(fitall, columns=["position", "c_score_norm", "c_score_unnorm"])
         fitall = fitall.astype({"position": int})
-        ret["cycle_"+chrom] = fitall
+        ret[f"cycle_{chrom}"] = fitall
+
     
     return ret
 
