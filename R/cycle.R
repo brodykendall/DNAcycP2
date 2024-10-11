@@ -41,6 +41,9 @@ cycle <- function(sequences, smooth) {
 #'
 #' @param input_file .fasta input file path
 #' @param smooth Whether to predict smoothed C0 (DNAcycP2) or original C0 (DNAcycP)
+#' @param n_cores Number of cores to use for parallel processing (default=1)
+#' @param chunk_length Length of sequence that each core will predict on at a given time.
+#' (default=100000)
 #' @return A list of predictions for each ID in the .fasta file. 
 #' 
 #' Each list item has the following columns: position, c_score_norm (predictions 
@@ -53,8 +56,8 @@ cycle <- function(sequences, smooth) {
 #' @importFrom basilisk basiliskStart basiliskRun basiliskStop
 #' @examples
 #' # Example usage of cycle_fasta
-#' cycle_fasta("path/to/fasta/file.fasta",smooth=TRUE)
-cycle_fasta <- function(file_path, smooth) {
+#' cycle_fasta("path/to/fasta/file.fasta",smooth=TRUE, n_cores=2, chunk_length=50000)
+cycle_fasta <- function(file_path, smooth, n_cores=1, chunk_length=100000) {
   cl <- basiliskStart(env1)
   on.exit(basiliskStop(cl))
   
@@ -69,7 +72,8 @@ cycle_fasta <- function(file_path, smooth) {
       irlstm <- system.file("python/irlstm", package = "dnacycp")
     }
     X <- reticulate::import_from_path("dnacycp_python", path = path_to_python)
-    res <- X$cycle_fasta(input_file, irlstm)
+    res <- X$cycle_fasta(input_file, irlstm, num_threads=as.integer(n_cores), 
+                         chunk_size=as.integer(chunk_length))
     res
   }, input_file=file_path)
   

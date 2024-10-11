@@ -55,6 +55,8 @@ The two main functions in the package are **cycle** and **cycle_fasta**, both of
 * `smooth=TRUE`: DNAcycP2 (the model trained on smoothed data, recommended) 
 * `smooth=FALSE`: DNAcycP (the model trained on the original data).
 
+The `cycle_fasta` is designed for larger files, so it has added parallelization capability. To utilize this capability, specify the number of cores to be greater than 1 using the `n_cores` argument (default 1). You can also specify the length of the sequence that each core will predict on at a given time using the `chunk_length` argument (default 100000).
+
 We provide two simple example files with the package to show proper usage:
 
 ```{r}
@@ -66,8 +68,8 @@ library(dnacycp)
 
 ```{r}
 ex1_file <- system.file("data", "ex1.fasta", package = "dnacycp")
-ex1_smooth <- dnacycp::cycle_fasta(ex1_file,smooth=TRUE)
-ex1_original <- dnacycp::cycle_fasta(ex1_file,smooth=FALSE)
+ex1_smooth <- dnacycp::cycle_fasta(ex1_file,smooth=TRUE,n_cores=1,chunk_length=1000)
+ex1_original <- dnacycp::cycle_fasta(ex1_file,smooth=FALSE,n_cores=1,chunk_length=1000)
 ```
 
 `cycle_fasta` takes the file path as input (`ex1_file`)
@@ -75,6 +77,10 @@ ex1_original <- dnacycp::cycle_fasta(ex1_file,smooth=FALSE)
 `smooth=TRUE` specifies that DNAcycP2 be used to make predictions
 
 `smooth=FALSE` specifies that DNAcycP be used to make predictions
+
+`n_cores=1` specifies that 1 core will be used (set >1 for parallel computation)
+
+`chunk_length=1000` specifies that predictions will be made on sequences of length 1000 at a given time
 
 The output (`ex1_smooth` or `ex1_original`) is a list with names starting with "cycle"
 
