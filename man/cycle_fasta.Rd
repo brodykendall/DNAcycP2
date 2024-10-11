@@ -4,10 +4,15 @@
 \alias{cycle_fasta}
 \title{Predict Cyclizability}
 \usage{
-cycle_fasta(file_path, smooth)
+cycle_fasta(file_path, smooth, n_cores = 1, chunk_length = 1e+05)
 }
 \arguments{
 \item{smooth}{Whether to predict smoothed C0 (DNAcycP2) or original C0 (DNAcycP)}
+
+\item{n_cores}{Number of cores to use for parallel processing (default=1)}
+
+\item{chunk_length}{Length of sequence that each core will predict on at a given time.
+(default=100000)}
 
 \item{input_file}{.fasta input file path}
 }
@@ -25,5 +30,5 @@ This predicts cyclizability for all subsequences of length 50bp from a .fasta in
 }
 \examples{
 # Example usage of cycle_fasta
-cycle_fasta("path/to/fasta/file.fasta",smooth=TRUE)
+cycle_fasta("path/to/fasta/file.fasta",smooth=TRUE, n_cores=2, chunk_length=50000)
 }
