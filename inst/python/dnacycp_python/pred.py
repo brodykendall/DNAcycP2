@@ -8,23 +8,17 @@ import tensorflow as tf
 import os
 from typing import List, Tuple
 
-detrend_int = 0.001641373848542571
-detrend_slope = 1.0158132314682007
+detrend_int_original = 0.029905550181865692
+detrend_slope_original = 0.973293125629425
+normal_mean_original = -0.18574825868055558
+normal_std_original = 0.4879013326394626
+
+detrend_int_smooth = 0.001641373848542571
+detrend_slope_smooth = 1.0158132314682007
 # Mean and stdev of smoothed C0 for Tiling library:
 # (calculated from/on the scale of normalized Cn values)
-normal_mean = -0.011196041799376931
-normal_std = 0.651684644408004
-
-# def dnaOneHot(sequence):
-#     seq_array = array(list(sequence))
-#     code = {"A": [0], "C": [1], "G": [2], "T": [3], "N": [4],
-#             "a": [0], "c": [1], "g": [2], "t": [3], "n": [4]}
-#     onehot_encoded_seq = []
-#     for char in seq_array:
-#         onehot_encoded = np.zeros(5)
-#         onehot_encoded[code[char]] = 1
-#         onehot_encoded_seq.append(onehot_encoded[0:4])
-#     return onehot_encoded_seq
+normal_mean_smooth = -0.011196041799376931
+normal_std_smooth = 0.651684644408004
 
 def dnaOneHot(sequence):
     code = np.array([
@@ -60,6 +54,7 @@ def construct_predict_fn(model):
 
 def cycle_fasta(inputfile, folder_path, chunk_size, num_threads):
     network_final = keras.models.load_model(folder_path)
+    smooth = True if "smooth" in folder_path else False
     genome_file = SeqIO.parse(open(inputfile),'fasta')
 
     predict_fn = construct_predict_fn(network_final)
@@ -124,41 +119,21 @@ def cycle_fasta(inputfile, folder_path, chunk_size, num_threads):
                 if onehot_sequence.shape[0] > 10**7:
                     print(f"\t Completed predictions on {total_processed} out of {sequence_length} sequences", flush=True)
 
-        # for start_ind in range(25, onehot_sequence.shape[0] - 24, 1000000):
-        #     end_ind = min(start_ind + 1000000, onehot_sequence.shape[0] - 24)
-        #     ind_local = np.arange(start_ind, end_ind)
-        #     onehot_sequence_local = onehot_sequence[np.arange(ind_local[0] - 25, ind_local[-1] - 24)[:, None] + np.arange(50)]
-        #     onehot_sequence_local = onehot_sequence_local.reshape((onehot_sequence_local.shape[0],50,4,1))
-        #     onehot_sequence_local_reverse = np.flip(onehot_sequence_local,[1,2])
-        #     fit_local = network_final.predict(onehot_sequence_local, verbose=0)
-        #     fit_local = fit_local.reshape((fit_local.shape[0]))
-        #     fit.append(fit_local)
-        #     fit_local_reverse = network_final.predict(onehot_sequence_local_reverse, verbose=0)
-        #     fit_local_reverse = fit_local_reverse.reshape((fit_local_reverse.shape[0]))
-        #     fit_reverse.append(fit_local_reverse)
-        #     if onehot_sequence.shape[0] > 10**7:
-        #         print(f"\t Completed predictions on {start_ind-25+onehot_sequence_local.shape[0]} out of {onehot_sequence.shape[0]-49} sequences")
-        # fit = [item for sublist in fit for item in sublist]
-        # fit = array(fit)
-        # fit_reverse = [item for sublist in fit_reverse for item in sublist]
-        # fit_reverse = array(fit_reverse)
-        # fit = detrend_int + (fit + fit_reverse) * detrend_slope/2
-        # fit2 = fit * normal_std + normal_mean
-        # n = fit.shape[0]
-        # fitall = np.vstack((range(25,25+n),fit,fit2))
-        # fitall = pd.DataFrame([*zip(*fitall)])
-        # fitall.columns = ["position","c_score_norm","c_score_unnorm"]
-        # fitall = fitall.astype({"position": int})
-        # ret["cycle_"+chrom] = fitall
-
-        fit = np.concatenate(fit)  # Assuming fit is a list of arrays
+        fit = np.concatenate(fit)
         fit_reverse = np.concatenate(fit_reverse)
-        fit = detrend_int + (fit + fit_reverse) * detrend_slope / 2
-        fit2 = fit * normal_std + normal_mean
+        if smooth:
+            fit = detrend_int_smooth + (fit + fit_reverse) * detrend_slope_smooth / 2
+            fit2 = fit * normal_std_smooth + normal_mean_smooth
+        else:
+            fit = detrend_int_original + (fit + fit_reverse) * detrend_slope_original / 2
+            fit2 = fit * normal_std_original + normal_mean_original
         n = fit.shape[0]
         positions = np.arange(25, 25 + n)
         fitall = np.column_stack((positions, fit, fit2))
-        fitall = pd.DataFrame(fitall, columns=["position", "c_score_norm", "c_score_unnorm"])
+        if smooth:
+            fitall = pd.DataFrame(fitall, columns=["position", "C0S_score_norm", "C0S_score_unnorm"])
+        else:
+            fitall = pd.DataFrame(fitall, columns=["position", "C0_score_norm", "C0_score_unnorm"])
         fitall = fitall.astype({"position": int})
         ret[f"cycle_{chrom}"] = fitall
     
@@ -166,6 +141,7 @@ def cycle_fasta(inputfile, folder_path, chunk_size, num_threads):
 
 def cycle(sequences, folder_path):
     network_final = keras.models.load_model(folder_path)
+    smooth = True if "smooth" in folder_path else False
     X = []
     all50 = True
     print("Reading sequences...")
@@ -183,9 +159,15 @@ def cycle(sequences, folder_path):
         model_pred = network_final.predict(X)
         model_pred_reverse = network_final.predict(X_reverse)
 
-        model_pred = detrend_int + (model_pred + model_pred_reverse) * detrend_slope/2
+        if smooth:
+            model_pred = detrend_int_smooth + (model_pred + model_pred_reverse) * detrend_slope_smooth / 2
+        else:
+            model_pred = detrend_int_original + (model_pred + model_pred_reverse) * detrend_slope_original / 2
         output_cycle = model_pred.flatten()
-        output_cycle2 = np.array([item * normal_std + normal_mean for item in output_cycle])
+        if smooth:
+            output_cycle2 = np.array([item * normal_std_smooth + normal_mean_smooth for item in output_cycle])
+        else:
+            output_cycle2 = np.array([item * normal_std_original + normal_mean_original for item in output_cycle])
     else:
         print("Not all sequences are length 50, predicting every subsequence...")
         output_cycle = []
@@ -207,14 +189,24 @@ def cycle(sequences, folder_path):
                 # No status bar for short sequences (verbose=0):
                 cycle_local = network_final.predict(onehot_loops, verbose=0)
                 cycle_local_reverse = network_final.predict(onehot_loops_reverse, verbose=0)
-            cycle_local = detrend_int + (cycle_local + cycle_local_reverse) * detrend_slope/2
+            if smooth:
+                cycle_local = detrend_int_smooth + (cycle_local + cycle_local_reverse) * detrend_slope_smooth/2
+            else:
+                cycle_local = detrend_int_original + (cycle_local + cycle_local_reverse) * detrend_slope_original/2
             cycle_local = cycle_local.reshape(cycle_local.shape[0])
             output_cycle.append(cycle_local)
             if j%10==9:
                 print(f"Completed {j+1} out of {lenX} total sequences")
-        output_cycle2 = [item * normal_std + normal_mean for item in output_cycle]
+        if smooth:
+            output_cycle = [item * normal_std_smooth + normal_mean_smooth for item in output_cycle]
+        else:
+            output_cycle = [item * normal_std_original + normal_mean_original for item in output_cycle]
 
-    ret = {"norm": output_cycle,
-           "unnorm": output_cycle2}
+    if smooth:
+        ret = {"C0S_norm": output_cycle,
+               "C0S_unnorm": output_cycle2}
+    else:
+        ret = {"C0_norm": output_cycle,
+               "C0_unnorm": output_cycle2}
 
     return ret
