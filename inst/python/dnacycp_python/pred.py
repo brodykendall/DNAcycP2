@@ -198,9 +198,9 @@ def cycle(sequences, folder_path):
             if j%10==9:
                 print(f"Completed {j+1} out of {lenX} total sequences")
         if smooth:
-            output_cycle = [item * normal_std_smooth + normal_mean_smooth for item in output_cycle]
+            output_cycle2 = [item * normal_std_smooth + normal_mean_smooth for item in output_cycle]
         else:
-            output_cycle = [item * normal_std_original + normal_mean_original for item in output_cycle]
+            output_cycle2 = [item * normal_std_original + normal_mean_original for item in output_cycle]
 
     if smooth:
         ret = {"C0S_norm": output_cycle,
