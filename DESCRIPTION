@@ -1,15 +1,18 @@
-Package: dnacycp
+Package: dnacycp2
 Title: Predicts DNA cyclizability for sequences/subsequences of length 50
 Version: 0.99.0
 Authors@R: 
-    person("Brody", "Kendall", email = "curtiskendall2025@u.northwestern.edu", role = c("aut"))
-    person("Ji-Ping", "Wang", email = "jzwang@northwestern.edu", role = c("aut", "cre"))
+    person("Brody", "Kendall", 
+        email = "curtiskendall2025@u.northwestern.edu", 
+        role = c("aut"))
+    person("Ji-Ping", "Wang", 
+        email = "jzwang@northwestern.edu", 
+        role = c("aut", "cre"))
 Description: Predicts DNA cyclizability for sequences/subsequences of length 50
 Imports:
   basilisk,
   reticulate
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: Artistic-2.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
@@ -19,3 +22,5 @@ biocViews: NeuralNetwork, StructuralPrediction
 VignetteBuilder: knitr
 Suggests: knitr, rmarkdown
 LazyData: false
+URL:
+BugReports:

@@ -12,25 +12,28 @@
 #' # Example usage of cycle
 #' cycle(sequences, smooth=TRUE) # where sequences is a list/vector of sequences
 cycle <- function(sequences, smooth) {
-  cl <- basiliskStart(env1)
-  on.exit(basiliskStop(cl))
-  
-  preds <- basiliskRun(cl, fun=function(seqs) {
-    path_to_python <- system.file("python", package = "dnacycp")
-    if (smooth) {
-      print("Predicting smooth C0:")
-      irlstm <- system.file("python/irlstm_smooth", package = "dnacycp")
-    }
-    else {
-      print("Predicting original C0:")
-      irlstm <- system.file("python/irlstm", package = "dnacycp")
-    }
-    X <- reticulate::import_from_path("dnacycp_python", path = path_to_python)
-    res <- X$cycle(sequences, irlstm)
-    res
-  }, seqs=sequences)
-  
-  preds
+    cl <- basiliskStart(env1)
+    on.exit(basiliskStop(cl))
+
+    preds <- basiliskRun(cl, fun=function(seqs) {
+        path_to_python <- system.file("python", package = "dnacycp")
+        if (smooth) {
+            # print("Predicting smooth C0:")
+            irlstm <- system.file("python/irlstm_smooth", package = "dnacycp")
+        }
+        else {
+            # print("Predicting original C0:")
+            irlstm <- system.file("python/irlstm", package = "dnacycp")
+        }
+        X <- reticulate::import_from_path("dnacycp_python", path = path_to_python)
+        if (inherits(sequences, "AAStringSet") | inherits(sequences, "DNAStringSet")) {
+            sequences <- as.character(sequences)
+        }
+        res <- X$cycle(sequences, irlstm)
+        res
+    }, seqs=sequences)
+
+    preds
 }
 
 
@@ -58,29 +61,27 @@ cycle <- function(sequences, smooth) {
 #' # Example usage of cycle_fasta
 #' cycle_fasta("path/to/fasta/file.fasta",smooth=TRUE, n_cores=2, chunk_length=50000)
 cycle_fasta <- function(file_path, smooth, n_cores=1, chunk_length=100000) {
-  cl <- basiliskStart(env1)
-  on.exit(basiliskStop(cl))
-  
-  preds <- basiliskRun(cl, fun=function(input_file) {
-    path_to_python <- system.file("python", package = "dnacycp")
-    if (smooth) {
-      print("Predicting smooth C0:")
-      irlstm <- system.file("python/irlstm_smooth", package = "dnacycp")
-    }
-    else {
-      print("Predicting original C0:")
-      irlstm <- system.file("python/irlstm", package = "dnacycp")
-    }
-    X <- reticulate::import_from_path("dnacycp_python", path = path_to_python)
-    res <- X$cycle_fasta(input_file, irlstm, num_threads=as.integer(n_cores), 
-                         chunk_size=as.integer(chunk_length))
-    res
-  }, input_file=file_path)
-  
-  preds
+    #TODO: Ensure interoperability with Biostrings for sequences
+    #TODO: Ensure interoperability with BiocIO for files
+    cl <- basiliskStart(env1)
+    on.exit(basiliskStop(cl))
+    
+    preds <- basiliskRun(cl, fun=function(input_file) {
+        path_to_python <- system.file("python", package = "dnacycp")
+        if (smooth) {
+            # print("Predicting smooth C0:")
+            irlstm <- system.file("python/irlstm_smooth", package = "dnacycp")
+        }
+        else {
+            # print("Predicting original C0:")
+            irlstm <- system.file("python/irlstm", package = "dnacycp")
+        }
+        X <- reticulate::import_from_path("dnacycp_python", path = path_to_python)
+        res <- X$cycle_fasta(
+            input_file, irlstm, num_threads=as.integer(n_cores), 
+            chunk_size=as.integer(chunk_length))
+        res
+    }, input_file=file_path)
+    
+    preds
 }
-
-
-
-
-

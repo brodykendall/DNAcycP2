@@ -1,38 +1,48 @@
-DNAcycP R package 
+DNAcycP2 R package 
 ================
 
 **Maintainer**: Ji-Ping Wang, \<<jzwang@northwestern.edu>\>; Brody Kendall \<<curtiskendall2025@u.northwestern.edu>\>; Keren Li, \<<keren.li@northwestern.edu>\>
 
-TODO: license
+**License**: Artistic-2.0
 
-**License**:
-
-**Cite DNAcycP package**:
+**Cite DNAcycP2 package**:
 
 TODO: Update citation when applicable
 
-Li, K., Carroll, M., Vafabakhsh, R., Wang, X.A. and Wang, J.-P., DNAcycP: A Deep Learning Tool for DNA Cyclizability Prediction, *Nucleic Acids Research*, 2021
 
-## What is DNAcycP?
+## What is DNAcycP2?
 
-**DNAcycP**, short for **DNA** **cyc**lizablity **P**rediction, is an R package for accurate prediction of DNA intrinsic cyclizablity score. It was built upon a deep learning architecture with a hybrid of Inception and Residual network structure and an LSTM layer. The original DNAcycP was trained based on loop-seq data from Basu et al 2021 (see below). An updated version (DNAcycP2) was trained based on smoothed predictions of this loop-seq data. The predicted score (for either DNAcycP or DNAcycP2), termed **C-score** achieves high accuracy compared to the experimentally measured cyclizablity score by loop-seq assay.
+**DNAcycP2**, short for **DNA** **cyc**lizablity **P**rediction v**2**, is an R package for accurate, unbiased prediction of DNA intrinsic cyclizablity score. It was built upon a deep learning architecture with a hybrid of Inception and Residual network structure and an LSTM layer. DNAcycP2 is an updated version of DNAcycP, released by Li et al 2021 (see below). DNAcycP was trained based on loop-seq data from Basu et al 2021 (see below), while DNAcycP2 was trained based on smoothed predictions of this loop-seq data. The predicted score (for either DNAcycP or DNAcycP2), termed **C-score** achieves high accuracy compared to the experimentally measured cyclizablity score by loop-seq assay.
 
-## Available format of DNAcycP
+## Key differences between DNAcycP2 and DNAcycP
 
-TODO: update reference to R package
-TODO: update web server
+Following the release of DNAcycP, it was discovered that the training data contained residual measurement bias, leading to biased predictions. To correct this bias in the data, we employed a data augmentation + periodic smoothing approach to generate new, unbiased estimates of intrinsic DNA cyclizability for each sequence in the original training dataset. We then trained a new model on the unbiased data with architecture identical to that of DNAcycP, named DNAcycP2. More details on this process can be found in the following paper: (CITATION).
 
-DNAcycP is available in three formats: A web server available at http://DNAcycP.stats.northwestern.edu for real-time prediction and visualization of C-score up to 20K bp, a standalone Python package available for free download from https://github.com/jipingw/DNAcycP, and an R package.
+TODO: fill in citation above
 
-## Architecture of DNAcycP
+Previously, the measurement bias introduced by the location of the biotin tether was not adequately accounted for. By employing data augmentation and smoothing with a moving average approach over the length of 1 full helical repeat at 1bp resolution in the genome, we can remove this bias while still maintaining high resolution, accurate estimates of intrinsic cyclizability.
 
-The core of DNAcycP is a deep learning architecture mixed with an Inception-ResNet structure and an LSTM layer (IR+LSTM, Fig 1b) that processes the sequence and its reverse complement separately, the results from which are averaged and detrended to reach the predicted intrinsic score. (Fig 1a).
+![Visualization of difference between DNAcycP2 and DNAcycP.](./figures/Figure7.png)
+
+## Available formats of DNAcycP2 and DNAcycP
+
+DNAcycP2 is available in three formats: A web server available at http://DNAcycP.stats.northwestern.edu for real-time prediction and visualization of C-score up to 20K bp, a standalone Python package avilable for free download from https://github.com/jipingw/DNAcycP2, and an R package available for free download from https://github.com/jipingw/dnacycp2-R.
+
+TODO: update web server - possible selection on server of which model to use?
+
+TODO: ensure correct links
+
+DNAcycP is still available in its two original formats: A web server available at http://DNAcycP.stats.northwestern.edu for real-time prediction and visualization of C-score up to 20K bp, and a standalone Python package available for free download from https://github.com/jipingw/DNAcycP
+
+## Architecture of DNAcycP2
+
+The core of DNAcycP2 is a deep learning architecture mixed with an Inception-ResNet structure and an LSTM layer (IR+LSTM, Fig 1b) that processes the sequence and its reverse complement separately, the results from which are averaged and detrended to reach the predicted intrinsic score. (Fig 1a).
 
 IR+LSTM starts with a convolutional layer for dimension reduction such that the encoded sequence space is reduced from 2D to 1D. The output is fed into an inception module that contains two parallel branches, each having two sequentially connected convolutional layers with branch-specific kernels to capture sequence features of different scale. The first branch has kernel dimension 3x1 for both layers and the second has kernel dimension 11x1 and 21x1 sequentially. The output of the inception module is combined by concatenation and added back to the input of the inception module to form a short circuit or residual network. Finally, the IR+LSTM concludes with a dense layer to predict output with linear activation function. 
 
-![A diagram of DNAcycP.](./figures/Figure1.png)
+![A diagram of DNAcycP2.](./figures/Figure1.png)
 
-## DNAcycP required R packages:
+## DNAcycP2 required packages
 
 * `basilisk`
 * `reticulate`
@@ -42,13 +52,13 @@ IR+LSTM starts with a convolutional layer for dimension reduction such that the 
 Current best practice is to install via `devtools` and github:
 
 ```r
-devtools::install_github("brodykendall/dnacycp-R")
+devtools::install_github("brodykendall/dnacycp2-R")
 ```
 
 
 ## Usage
 
-Upon successful installation, the DNAcycP R package supports the input sequence in two formats: FASTA format (with sequence name line beginning with “>”) or directly as an R object. Unlike in the web server version where only one sequence is allowed in input for prediction, the R package allows multiple sequences in the same input file/object. In particular for the R object format, each sequence (which can be of length >= 50bp) in the file is regarded as one input sequence for prediction, however the computation is most efficient when every sequence has length exactly 50bp.
+Upon successful installation, the DNAcycP2 R package supports the input sequence in two formats: FASTA format (with sequence name line beginning with “>”) or directly as an R object. Unlike in the web server version where only one sequence is allowed in input for prediction, the R package allows multiple sequences in the same input file/object. In particular for the R object format, each sequence (which can be of length >= 50bp) in the file is regarded as one input sequence for prediction, however the computation is most efficient when every sequence has length exactly 50bp.
 
 The two main functions in the package are `cycle` and `cycle_fasta`, both of which perform cyclizability prediction. The main difference between the two functions is the input type: `cycle` takes an R object as its input, while `cycle_fasta` takes a file path as its input. Both take an additional argument `smooth` which determines which model to use in making predictions:
 * `smooth=TRUE`: DNAcycP2 (the model trained on smoothed data, recommended) 
@@ -63,9 +73,9 @@ We provide two simple example files with the package to show proper usage:
 ### Example 1:
 
 ```r
-ex1_file <- system.file("data", "ex1.fasta", package = "dnacycp")
-ex1_smooth <- dnacycp::cycle_fasta(ex1_file,smooth=TRUE,n_cores=2,chunk_length=1000)
-ex1_original <- dnacycp::cycle_fasta(ex1_file,smooth=FALSE,n_cores=2,chunk_length=1000)
+ex1_file <- system.file("data", "ex1.fasta", package = "dnacycp2")
+ex1_smooth <- dnacycp2::cycle_fasta(ex1_file,smooth=TRUE,n_cores=2,chunk_length=1000)
+ex1_original <- dnacycp2::cycle_fasta(ex1_file,smooth=FALSE,n_cores=2,chunk_length=1000)
 ```
 
 `cycle_fasta` takes the file path as input (`ex1_file`)
@@ -88,7 +98,7 @@ Each item in the list (e.g. `ex1_smooth$cycle_1`) is a data.frame object with th
 ### Example 2:
 
 ```r
-ex2_file <- system.file("data", "ex2.txt", package = "dnacycp")
+ex2_file <- system.file("data", "ex2.txt", package = "dnacycp2")
 ex2 <- read.csv(ex2_file, header = FALSE)
 ex2_smooth <- dnacycp::cycle(ex2$V1, smooth=TRUE)
 ex2_original <- dnacycp::cycle(ex2$V1, smooth=FALSE)
@@ -107,5 +117,7 @@ If every sequence has length exactly 50bp (recommended), both items in the list 
 Otherwise (if there as at least one sequence with length >50bp), both items in the list will be lists of vectors corresponding to the predicted values for each subsequence of length 50bp at the relevant list index. For example, as `ex2` contains 100 sequences each of length 250bp, `ex2_smooth$C0S_norm[[1]]` contains the normalized C-scores for every 50bp subsequence of the first sequence in `ex2` in order. That is, `ex2_smooth$C0S_norm[[1]][1]` corresponds to positions 1-50 of the first sequence in `ex2`, `ex2_smooth$C0S_norm[[1]][2]` corresponds to positions 2-51 of the first sequence in `ex2`, and so forth.
 
 ## Other References
+
+* Li, K., Carroll, M., Vafabakhsh, R., Wang, X.A. and Wang, J.-P., DNAcycP: A Deep Learning Tool for DNA Cyclizability Prediction, *Nucleic Acids Research*, 2021
 
 * Basu, A., Bobrovnikov, D.G., Qureshi, Z., Kayikcioglu, T., Ngo, T.T.M., Ranjan, A., Eustermann, S., Cieza, B., Morgan, M.T., Hejna, M. et al. (2021) Measuring DNA mechanics on the genome scale. Nature, 589, 462-467.
