@@ -140,6 +140,8 @@ def cycle_fasta(inputfile, folder_path, chunk_size, num_threads):
     return ret
 
 def cycle(sequences, folder_path):
+    if type(sequences) == str:
+        sequences = [sequences]
     network_final = keras.models.load_model(folder_path)
     smooth = True if "smooth" in folder_path else False
     X = []
