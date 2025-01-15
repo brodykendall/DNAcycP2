@@ -76,14 +76,14 @@ cycle_fasta <- function(file_path, smooth, n_cores=1, chunk_length=100000) {
     on.exit(basiliskStop(cl))
     
     preds <- basiliskRun(cl, fun=function(input_file) {
-        path_to_python <- system.file("python", package = "dnacycp")
+        path_to_python <- system.file("python", package = "dnacycp2")
         if (smooth) {
             # print("Predicting smooth C0:")
-            irlstm <- system.file("python/irlstm_smooth", package = "dnacycp")
+            irlstm <- system.file("python/irlstm_smooth", package = "dnacycp2")
         }
         else {
             # print("Predicting original C0:")
-            irlstm <- system.file("python/irlstm", package = "dnacycp")
+            irlstm <- system.file("python/irlstm", package = "dnacycp2")
         }
         X <- reticulate::import_from_path(
             "dnacycp_python", path = path_to_python
