@@ -205,10 +205,25 @@ def cycle(sequences, folder_path):
             output_cycle2 = [item * normal_std_original + normal_mean_original for item in output_cycle]
 
     if smooth:
-        ret = {"C0S_norm": output_cycle,
-               "C0S_unnorm": output_cycle2}
+        ret = []
+        for i in range(len(output_cycle)):
+            df = pd.DataFrame({
+                "position": np.arange(25, 25 + len(output_cycle[i])),
+                "C0S_norm": output_cycle[i],
+                "C0S_unnorm": output_cycle2[i]
+            })
+            ret.append(df)
+        # ret = {"C0S_norm": output_cycle,
+        #        "C0S_unnorm": output_cycle2}
     else:
-        ret = {"C0_norm": output_cycle,
-               "C0_unnorm": output_cycle2}
-
+        ret = []
+        for i in range(len(output_cycle)):
+            df = pd.DataFrame({
+                "position": np.arange(25, 25 + len(output_cycle[i])),
+                "C0_norm": output_cycle[i],
+                "C0_unnorm": output_cycle2[i]
+            })
+            ret.append(df)
+        # ret = {"C0_norm": output_cycle,
+        #        "C0_unnorm": output_cycle2}
     return ret
