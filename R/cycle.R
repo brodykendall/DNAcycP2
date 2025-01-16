@@ -19,29 +19,21 @@
 cycle <- function(sequences, smooth, save_path="") {
     cl <- basiliskStart(env1)
     on.exit(basiliskStop(cl))
-
     preds <- basiliskRun(cl, fun=function(seqs) {
         path_to_python <- system.file("python", package = "dnacycp2")
         if (smooth) {
-            # print("Predicting smooth C0:")
             irlstm <- system.file("python/irlstm_smooth", package = "dnacycp2")
         }
-        else {
-            # print("Predicting original C0:")
-            irlstm <- system.file("python/irlstm", package = "dnacycp2")
-        }
+        else { irlstm <- system.file("python/irlstm", package = "dnacycp2") }
         X <- reticulate::import_from_path(
             "dnacycp_python", path = path_to_python
         )
         if (inherits(sequences, "AAStringSet") | 
             inherits(sequences, "DNAStringSet")
-        ) {
-            sequences <- as.character(sequences)
-        }
+        ) { sequences <- as.character(sequences) }
         res <- X$cycle(sequences, irlstm)
         res
     }, seqs=sequences)
-    
     # Only save outfiles if save_path argument is supplied:
     if (save_path != "") {
         # Create file names
@@ -52,30 +44,23 @@ cycle <- function(sequences, smooth, save_path="") {
             outfile_norm <- file(paste0(save_path, "_C0_norm.txt"), "w")
             outfile_unnorm <- file(paste0(save_path, "_C0_unnorm.txt"), "w")
         }
-        
         # First, save normalized outputs:
         for (row in preds[[2]]) {
-            if (is.numeric(row) && length(row) == 1) {
-                s <- as.character(row)
-            } else {
+            if (is.numeric(row) && length(row) == 1) { s <- as.character(row) } 
+            else {
                 s <- paste(row, collapse = " ")
             }
             writeLines(s, outfile_norm)
         }
         close(outfile_norm)
-        
         # Next, save unnormalized outputs:
         for (row in preds[[3]]) {
-            if (is.numeric(row) && length(row) == 1) {
-                s <- as.character(row)
-            } else {
-                s <- paste(row, collapse = " ")
-            }
+            if (is.numeric(row) && length(row) == 1) { s <- as.character(row)} 
+            else { s <- paste(row, collapse = " ") }
             writeLines(s, outfile_unnorm)
         }
         close(outfile_unnorm)
     }
-
     preds[[1]]
 }
 
@@ -137,7 +122,7 @@ cycle_fasta <- function(file_path, smooth, n_cores=1, chunk_length=100000,
     }, input_file=file_path)
     
     if (save_path != "") {
-        for (i in 1:length(preds)) {
+        for (i in seq_along(preds)) {
             outfile<-paste0(c(
                 paste(c(save_path,names(preds)[i]),collapse="_"),
                 ".txt"), collapse=""

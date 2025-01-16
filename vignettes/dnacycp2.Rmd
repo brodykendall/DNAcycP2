@@ -281,7 +281,7 @@ S. Cerevisiae sacCer3 Chromosome I (1:1000) in .fasta and .txt format.
 
 First, we will consider the .fasta format:
 
-```r
+```{r}
 ex3_fasta_file <- system.file(
     "data", "ex3_single_seq.fasta", package = "dnacycp2"
 )
@@ -290,7 +290,7 @@ ex3_fasta_original <- dnacycp2::cycle_fasta(ex3_fasta_file,smooth=FALSE)
 ```
 
 The output (`ex3_fasta_smooth` or `ex3_fasta_original`) is a list with
- 1 entry named "cycle_1".
+1 entry named "cycle_1".
 
 Let's say we are interested only in the smooth (DNAcycP2), normalized
 predictions for the subsequence defined by the first 100bp 
@@ -298,19 +298,19 @@ predictions for the subsequence defined by the first 100bp
 ..., and [51-100], or `position`s 25, 26, ..., and 75). We can 
 access the outputs for this subsequence using the following command:
 
-```r
+```{r}
 ex3_fasta_smooth[[1]][1:51,c("position", "C0S_norm")]
 ```
 
 Or, equivalently,
 
-```r
+```{r}
 ex3_fasta_smooth$cycle_1[1:51,c("position", "C0S_norm")]
 ```
 
 Next, we will consider the .txt format:
 
-```r
+```{r}
 ex3_txt_file <- system.file("data", "ex3_single_seq.txt", package = "dnacycp2")
 ex3_txt <- read.csv(ex3_txt_file, header = FALSE)
 ex3_txt_smooth <- dnacycp2::cycle(ex3_txt$V1, smooth=TRUE)
