@@ -223,4 +223,5 @@ def cycle(sequences, folder_path):
                 "C0_unnorm": output_cycle2[i]
             })
             ret.append(df)
-    return ret
+    ret2 = [ret, output_cycle, output_cycle2]
+    return ret2

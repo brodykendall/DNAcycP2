@@ -94,6 +94,20 @@ Therefore, both `ex1_smooth` and `ex1_original` will be lists of length 2 with n
 
 Each item in the list (e.g. `ex1_smooth$cycle_1`) is a data.frame object with three columns. The first columns is always `position`. When `smooth=TRUE`, the second and third columns are `C0S_norm` and `C0S_unnorm`, and when `smooth=FALSE` the second and third columns are `C0_norm` and `C0_unnorm`. The predicted C-score for either model is the normalized output (`C0S_norm` and `C0_norm`), the predictions from the model trained based on the standardized loop-seq score (in the case of DNAcycP) or the standardized smoothed intrinsic cyclizability estimate (in the case of DNAcycP2) of the Tiling library of Basu et al 2021 (i.e. 0 mean unit variance). When predictions are made using the original DNAcycP (`smooth=FALSE`), `C0_unnorm` is the predicted C-score recovered to the original scale of loop-seq score in the Tiling library data from Basu et el 2021. When predictions are made using the updated DNAcycP2 (`smooth=TRUE`), `C0S_unnorm` is the predicted C-score recovered to the scale of standardized raw cyclizability scores of the Tiling library data. The standardized scores provide two advantages. As loop-seq may be subject to a library-specific constant, standardized C-score is defined with a unified baseline as yeast genome (i.e. 0 mean in yeast genome). Secondly, the C-score provides statisitcal significance indicator, i.e. a C-score of 1.96 indicates 97.5% in the distribution.
 
+One further option is to save the predictions to output files. To do so, supply the path and output file basename to the `save_path` argument. For example:
+
+```r
+ex1_smooth <- dnacycp2::cycle_fasta(
+    ex1_file,
+    smooth=TRUE,
+    n_cores=2,
+    chunk_length=1000, 
+    save_path="ex1_smooth"
+)
+```
+
+This will execute the same predictions as previously, and additionally save two files named 'ex1_smooth_cycle_1.txt' and 'ex1_smooth_cycle_2.txt' (one file for each sequence) to the current working directory.
+
 ### Example 2:
 
 ```r
@@ -118,6 +132,20 @@ where each entry in the list corresponds to the sequence with its same index.
 Each item in the list (e.g. `ex2_smooth[[1]]`) is a data.frame object with three columns. The first columns is always `position`. When `smooth=TRUE`, the second and third columns are `C0S_norm` and `C0S_unnorm`, and when `smooth=FALSE` the second and third columns are `C0_norm` and `C0_unnorm`. The predicted C-score for either model is the normalized output (`C0S_norm` and `C0_norm`), the predictions from the model trained based on the standardized loop-seq score (in the case of DNAcycP) or the standardized smoothed intrinsic cyclizability estimate (in the case of DNAcycP2) of the Tiling library of Basu et al 2021 (i.e. 0 mean unit variance). When predictions are made using the original DNAcycP (`smooth=FALSE`), `C0_unnorm` is the predicted C-score recovered to the original scale of loop-seq score in the Tiling library data from Basu et el 2021. When predictions are made using the updated DNAcycP2 (`smooth=TRUE`), `C0S_unnorm` is the predicted C-score recovered to the scale of standardized raw cyclizability scores of the Tiling library data. The standardized scores provide two advantages. As loop-seq may be subject to a library-specific constant, standardized C-score is defined with a unified baseline as yeast genome (i.e. 0 mean in yeast genome). Secondly, the C-score provides statisitcal significance indicator, i.e. a C-score of 1.96 indicates 97.5% in the distribution.
 
 If every sequence has length exactly 50bp (recommended), the computation will perform significantly faster.
+
+Similar to the .fasta case, there is an option to save the predictions to output files. To do so, supply the path and output file basename to the `save_path` argument. For example:
+
+```r
+ex2_smooth <- dnacycp2::cycle(
+    ex2$V1, 
+    smooth=TRUE, 
+    save_path="ex2_smooth"
+)
+```
+
+This will execute the same predictions as previously, and additionally save two files named 'ex2_smooth_C0S_norm.txt' and 'ex2_smooth_C0S_unnorm.txt' to the current working directory. For consistency with the Python pacakge, ***it is important to note that these files have a different format than the function output.*** Namely, rather than writing a single file for every sequence, the function always writes two files (regardless of the number of sequences), one containing normalized predictions for every sequence (ending in 'C0S_norm.txt' or 'C0_norm.txt') and the other containing unnormalized predictions for every sequence (ending in 'C0S_unnorm.txt' or 'C0_unnorm.txt'). C-scores in each line correspond to the sequence from the `sequences` input in the same order.
+
+For any input sequence, DNAcycP2 predicts the C-score for every 50 bp. Regardless of the input sequence format the first C-score in the output file corresponds to the sequence from position 1-50, second for 2-51 and so forth.
 
 ### Example 3 (Single Sequence):
 
