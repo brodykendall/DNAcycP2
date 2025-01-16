@@ -114,7 +114,6 @@ def cycle_fasta(inputfile, folder_path, chunk_size, num_threads):
                 fit_reverse.append(fit_local_reverse)
                 
                 # Progress reporting for long sequences
-                sequences_processed = len(fit_local)
                 total_processed = sum(len(chunk) for chunk in fit)
                 if onehot_sequence.shape[0] > 10**7:
                     print(f"\t Completed predictions on {total_processed} out of {sequence_length} sequences", flush=True)
@@ -167,9 +166,9 @@ def cycle(sequences, folder_path):
             model_pred = detrend_int_original + (model_pred + model_pred_reverse) * detrend_slope_original / 2
         output_cycle = model_pred.flatten()
         if smooth:
-            output_cycle2 = np.array([item * normal_std_smooth + normal_mean_smooth for item in output_cycle])
+            output_cycle2 = [item * normal_std_smooth + normal_mean_smooth for item in output_cycle]
         else:
-            output_cycle2 = np.array([item * normal_std_original + normal_mean_original for item in output_cycle])
+            output_cycle2 = [item * normal_std_original + normal_mean_original for item in output_cycle]
     else:
         print("Not all sequences are length 50, predicting every subsequence...")
         output_cycle = []
@@ -207,23 +206,21 @@ def cycle(sequences, folder_path):
     if smooth:
         ret = []
         for i in range(len(output_cycle)):
+            cur_length = 1 if all50 else len(output_cycle[i])
             df = pd.DataFrame({
-                "position": np.arange(25, 25 + len(output_cycle[i])),
+                "position": np.arange(25, 25 + cur_length),
                 "C0S_norm": output_cycle[i],
                 "C0S_unnorm": output_cycle2[i]
             })
             ret.append(df)
-        # ret = {"C0S_norm": output_cycle,
-        #        "C0S_unnorm": output_cycle2}
     else:
         ret = []
         for i in range(len(output_cycle)):
+            cur_length = 1 if all50 else len(output_cycle[i])
             df = pd.DataFrame({
-                "position": np.arange(25, 25 + len(output_cycle[i])),
+                "position": np.arange(25, 25 + cur_length),
                 "C0_norm": output_cycle[i],
                 "C0_unnorm": output_cycle2[i]
             })
             ret.append(df)
-        # ret = {"C0_norm": output_cycle,
-        #        "C0_unnorm": output_cycle2}
     return ret

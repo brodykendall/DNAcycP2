@@ -89,7 +89,8 @@ ex1_original <- dnacycp2::cycle_fasta(ex1_file,smooth=FALSE,n_cores=2,chunk_leng
 The output (`ex1_smooth` or `ex1_original`) is a list with names starting with "cycle"
 
 For example, `ex1.fasta` contains two sequences with IDs "1" and "2" respectively.
-Therefore, both `ex1_smooth1` and `ex1_original` will be lists of length 2 with names `cycle_1` and `cycle_2` for the first and second sequences respectively.
+
+Therefore, both `ex1_smooth` and `ex1_original` will be lists of length 2 with names `cycle_1` and `cycle_2` for the first and second sequences respectively.
 
 Each item in the list (e.g. `ex1_smooth$cycle_1`) is a data.frame object with three columns. The first columns is always `position`. When `smooth=TRUE`, the second and third columns are `C0S_norm` and `C0S_unnorm`, and when `smooth=FALSE` the second and third columns are `C0_norm` and `C0_unnorm`. The predicted C-score for either model is the normalized output (`C0S_norm` and `C0_norm`), the predictions from the model trained based on the standardized loop-seq score (in the case of DNAcycP) or the standardized smoothed intrinsic cyclizability estimate (in the case of DNAcycP2) of the Tiling library of Basu et al 2021 (i.e. 0 mean unit variance). When predictions are made using the original DNAcycP (`smooth=FALSE`), `C0_unnorm` is the predicted C-score recovered to the original scale of loop-seq score in the Tiling library data from Basu et el 2021. When predictions are made using the updated DNAcycP2 (`smooth=TRUE`), `C0S_unnorm` is the predicted C-score recovered to the scale of standardized raw cyclizability scores of the Tiling library data. The standardized scores provide two advantages. As loop-seq may be subject to a library-specific constant, standardized C-score is defined with a unified baseline as yeast genome (i.e. 0 mean in yeast genome). Secondly, the C-score provides statisitcal significance indicator, i.e. a C-score of 1.96 indicates 97.5% in the distribution.
 
@@ -98,8 +99,8 @@ Each item in the list (e.g. `ex1_smooth$cycle_1`) is a data.frame object with th
 ```r
 ex2_file <- system.file("data", "ex2.txt", package = "dnacycp2")
 ex2 <- read.csv(ex2_file, header = FALSE)
-ex2_smooth <- dnacycp::cycle(ex2$V1, smooth=TRUE)
-ex2_original <- dnacycp::cycle(ex2$V1, smooth=FALSE)
+ex2_smooth <- dnacycp2::cycle(ex2$V1, smooth=TRUE)
+ex2_original <- dnacycp2::cycle(ex2$V1, smooth=FALSE)
 ```
 
 `cycle` takes the sequences themselves as input, so we first read the file (`ex2_file`) and then provide the sequences as input (`ex2$V1`)
@@ -108,14 +109,76 @@ ex2_original <- dnacycp::cycle(ex2$V1, smooth=FALSE)
 
 `smooth=FALSE` specifies that DNAcycP be used to make predictions
 
-The output (`ex2_smooth` or `ex2_original`) is a list with names "C0S_norm" and "C0S_unnorm" in the `smooth=TRUE` case, or "C0_norm" and "C0_unnorm" in the `smooth=FALSE` case, corresponding to normalized and unnormalized C-score.
+The output (`ex2_smooth` or `ex2_original`) is a list with indices corresponding to each sequence from the `sequences` argument (here it is `ex2$V1`).
 
-If every sequence has length exactly 50bp (recommended), both items in the list will be vectors of doubles corresponding to the predicted value for the sequence at the relevant index.
+For example, `ex2.txt` contains 100 sequences.
+Therefore, both `ex2_smooth` and `ex2_original` will be lists of length 100, 
+where each entry in the list corresponds to the sequence with its same index.
 
-Otherwise (if there as at least one sequence with length >50bp), both items in the list will be lists of vectors corresponding to the predicted values for each subsequence of length 50bp at the relevant list index. For example, as `ex2` contains 100 sequences each of length 250bp, `ex2_smooth$C0S_norm[[1]]` contains the normalized C-scores for every 50bp subsequence of the first sequence in `ex2` in order. That is, `ex2_smooth$C0S_norm[[1]][1]` corresponds to positions 1-50 of the first sequence in `ex2`, `ex2_smooth$C0S_norm[[1]][2]` corresponds to positions 2-51 of the first sequence in `ex2`, and so forth.
+Each item in the list (e.g. `ex2_smooth[[1]]`) is a data.frame object with three columns. The first columns is always `position`. When `smooth=TRUE`, the second and third columns are `C0S_norm` and `C0S_unnorm`, and when `smooth=FALSE` the second and third columns are `C0_norm` and `C0_unnorm`. The predicted C-score for either model is the normalized output (`C0S_norm` and `C0_norm`), the predictions from the model trained based on the standardized loop-seq score (in the case of DNAcycP) or the standardized smoothed intrinsic cyclizability estimate (in the case of DNAcycP2) of the Tiling library of Basu et al 2021 (i.e. 0 mean unit variance). When predictions are made using the original DNAcycP (`smooth=FALSE`), `C0_unnorm` is the predicted C-score recovered to the original scale of loop-seq score in the Tiling library data from Basu et el 2021. When predictions are made using the updated DNAcycP2 (`smooth=TRUE`), `C0S_unnorm` is the predicted C-score recovered to the scale of standardized raw cyclizability scores of the Tiling library data. The standardized scores provide two advantages. As loop-seq may be subject to a library-specific constant, standardized C-score is defined with a unified baseline as yeast genome (i.e. 0 mean in yeast genome). Secondly, the C-score provides statisitcal significance indicator, i.e. a C-score of 1.96 indicates 97.5% in the distribution.
+
+If every sequence has length exactly 50bp (recommended), the computation will perform significantly faster.
+
+### Example 3 (Single Sequence):
+
+If you want the predict C-scores for a single sequence, you can follow the same protocol as Example 1 or 2, depending on the input format. We have included two example files representing the same 1000bp stretch of S. Cerevisiae sacCer3 Chromosome I (1:1000) in .fasta and .txt format.
+
+First, we will consider the .fasta format:
+
+```r
+ex3_fasta_file <- system.file("data", "ex3_single_seq.fasta", package = "dnacycp2")
+ex3_fasta_smooth <- dnacycp2::cycle_fasta(ex3_fasta_file,smooth=TRUE)
+ex3_fasta_original <- dnacycp2::cycle_fasta(ex3_fasta_file,smooth=FALSE)
+```
+
+The output (`ex3_fasta_smooth` or `ex3_fasta_original`) is a list with
+ 1 entry named "cycle_1".
+
+Let's say we are interested only in the smooth (DNAcycP2), normalized
+predictions for the subsequence defined by the first 100bp 
+(corresponding to subsequences defined by regions [1,50], [2,51],
+..., and [51-100], or `position`s 25, 26, ..., and 75). We can 
+access the outputs for this subsequence using the following command:
+
+```r
+ex3_fasta_smooth[[1]][1:51,c("position", "C0S_norm")]
+```
+
+Or, equivalently,
+
+```r
+ex3_fasta_smooth$cycle_1[1:51,c("position", "C0S_norm")]
+```
+
+Next, we will consider the .txt format:
+
+```r
+ex3_txt_file <- system.file("data", "ex3_single_seq.txt", package = "dnacycp2")
+ex3_txt <- read.csv(ex3_txt_file, header = FALSE)
+ex3_txt_smooth <- dnacycp2::cycle(ex3_txt$V1, smooth=TRUE)
+ex3_txt_original <- dnacycp2::cycle(ex3_txt$V1, smooth=FALSE)
+```
+
+The output (`ex3_txt_smooth` or `ex3_txt_original`) is a list with 1 entry (unnamed).
+
+Note, that `ex3_fasta_smooth` and `ex3_txt_smooth` are essentially equivalent. 
+The only exceptions are perhaps slight rounding differences that come from the 
+computation, and that the list `ex3_fasta_smooth` has named entries ('cycle_1') 
+while `ex3_txt_smooth` does not. The same applies for `ex3_fasta_original` and 
+`ex3_txt_original`.
+
+Therefore, we can use a similar command to access the outputs for our subsequence of interest:
+
+```r
+ex3_txt_smooth[[1]][1:51,c("position", "C0S_norm")]
+```
 
 ## Other References
 
-* Li, K., Carroll, M., Vafabakhsh, R., Wang, X.A. and Wang, J.-P., DNAcycP: A Deep Learning Tool for DNA Cyclizability Prediction, *Nucleic Acids Research*, 2021
+* Li, K., Carroll, M., Vafabakhsh, R., Wang, X.A. and Wang, J.-P., DNAcycP: A 
+Deep Learning Tool for DNA Cyclizability Prediction, *Nucleic Acids Research*, 
+2021
 
-* Basu, A., Bobrovnikov, D.G., Qureshi, Z., Kayikcioglu, T., Ngo, T.T.M., Ranjan, A., Eustermann, S., Cieza, B., Morgan, M.T., Hejna, M. et al. (2021) Measuring DNA mechanics on the genome scale. Nature, 589, 462-467.
+* Basu, A., Bobrovnikov, D.G., Qureshi, Z., Kayikcioglu, T., Ngo, T.T.M., 
+Ranjan, A., Eustermann, S., Cieza, B., Morgan, M.T., Hejna, M. et al. (2021) 
+Measuring DNA mechanics on the genome scale. Nature, 589, 462-467.
