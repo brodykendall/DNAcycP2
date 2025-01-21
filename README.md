@@ -12,31 +12,32 @@ TODO: Update citation when applicable
 
 ## What is DNAcycP2?
 
-**DNAcycP2**, short for **DNA** **cyc**lizablity **P**rediction v**2**, is an R package for accurate, unbiased prediction of DNA intrinsic cyclizablity score. It was built upon a deep learning architecture with a hybrid of Inception and Residual network structure and an LSTM layer. DNAcycP2 is an updated version of DNAcycP, released by Li et al 2021 (see below). DNAcycP was trained based on loop-seq data from Basu et al 2021 (see below), while DNAcycP2 was trained based on smoothed predictions of this loop-seq data. The predicted score (for either DNAcycP or DNAcycP2), termed **C-score** achieves high accuracy compared to the experimentally measured cyclizablity score by loop-seq assay.
+**DNAcycP2**, short for **DNA** **cyc**lizability **P**rediction v**2**, is an R package (Python version is also available) developed for precise and unbiased prediction of DNA intrinsic cyclizability scores. This tool builds on a deep learning framework that integrates Inception and Residual network architectures with an LSTM layer, providing a robust and accurate prediction mechanism.
+
+DNAcycP2 is an updated version of the earlier **DNAcycP** tool released by Li et al. in 2021. While DNAcycP was trained on loop-seq data from Basu et al. (2021), DNAcycP2 improves upon it by training on smoothed predictions derived from this dataset. The predicted score, termed **C-score**, exhibits high accuracy when compared with experimentally measured cyclizability scores obtained from the loop-seq assay. This makes DNAcycP2 a valuable tool for researchers studying DNA mechanics and structure.
 
 ## Key differences between DNAcycP2 and DNAcycP
 
-Following the release of DNAcycP, it was discovered that the training data contained residual measurement bias, leading to biased predictions. To correct this bias in the data, we employed a data augmentation + periodic smoothing approach to generate new, unbiased estimates of intrinsic DNA cyclizability for each sequence in the original training dataset. We then trained a new model on the unbiased data with architecture identical to that of DNAcycP, named DNAcycP2. More details on this process can be found in the following paper: (CITATION).
+Following the release of DNAcycP, it was found that the intrinsic cyclizability scores derived from Basu et al. (2021) retained residual bias from the biotin effect, resulting in inaccuracies (Kendall et al., 2025). To address this, we employed a data augmentation + moving average smoothing method to produce unbiased estimates of intrinsic DNA cyclizability for each sequence in the original training dataset. A new model, trained on this corrected data but using the same architecture as DNAcycP, was developed, resulting in DNAcycP2. This version also introduces improved computational efficiency through parallelization options. Further details are available in Kendall et al. (2025).
 
-TODO: fill in citation above
+To demonstrate the differences, we compared predictions from DNAcycP and DNAcycP2 in a yeast genomic region at base-pair resolution (Figure 1). The predicted biotin-dependent scores ($\tilde C_{26}$, $\tilde C_{29}$, and $ \tilde C_{31}$, model trained separately) show 10-bp periodic oscillations due to biotin biases, each with distinct phases. DNAcycP's predictions improved over the biotin-dependent scores, while still show substantial
+local fluctuations likely caused by residual bias in the training data (the called intrinsic cyclizability score $\hat C_0$ from Basu et al. 2021). In contrast, DNAcycP2, trained on corrected intrinsic cyclizability scores, produces much smoother local-scale predictions, indicating a further improvement in removing the biotin bias.
 
-Previously, the measurement bias introduced by the location of the biotin tether was not adequately accounted for. By employing data augmentation and smoothing with a moving average approach over the length of 1 full helical repeat at 1bp resolution in the genome, we can remove this bias while still maintaining high resolution, accurate estimates of intrinsic cyclizability.
+The DNAcycP2 package retains all prediction functions from the original DNAcycP. The improved prediction model, based on smoothed data, can be accessed using the argument smooth=TRUE in the main function (see usage below).
+
 
 ![Visualization of difference between DNAcycP2 and DNAcycP.](./figures/Figure7.png)
 
 ## Available formats of DNAcycP2 and DNAcycP
 
-DNAcycP2 is available in three formats: A web server available at http://DNAcycP.stats.northwestern.edu for real-time prediction and visualization of C-score up to 20K bp, a standalone Python package avilable for free download from https://github.com/jipingw/DNAcycP2, and an R package available for free download from https://github.com/jipingw/dnacycp2-R.
+DNAcycP2 is available in three formats: A web server available at http://DNAcycP.stats.northwestern.edu for real-time prediction and visualization of C-score up to 20K bp, a standalone Python package avilable for free download from https://github.com/jipingw/DNAcycP2-Python, and a new R package available for free download from bioconductor (https://github.com/jipingw/DNAcycP2). DNAcycP2 R package is a wrapper of its Python version, both generate the same prediction results.
 
-TODO: update web server - possible selection on server of which model to use?
-
-DNAcycP is still available in its two original formats: A web server available at http://DNAcycP.stats.northwestern.edu for real-time prediction and visualization of C-score up to 20K bp, and a standalone Python package available for free download from https://github.com/jipingw/DNAcycP
+DNAcycP Python package is still available for free download from https://github.com/jipingw/DNAcycP.
+As DNAcycP2 include all functionalities of DNAcycP, users can generate all DNAcycP results using DNAcycP2.
 
 ## Architecture of DNAcycP2
 
-The core of DNAcycP2 is a deep learning architecture mixed with an Inception-ResNet structure and an LSTM layer (IR+LSTM, Fig 1b) that processes the sequence and its reverse complement separately, the results from which are averaged and detrended to reach the predicted intrinsic score. (Fig 1a).
-
-IR+LSTM starts with a convolutional layer for dimension reduction such that the encoded sequence space is reduced from 2D to 1D. The output is fed into an inception module that contains two parallel branches, each having two sequentially connected convolutional layers with branch-specific kernels to capture sequence features of different scale. The first branch has kernel dimension 3x1 for both layers and the second has kernel dimension 11x1 and 21x1 sequentially. The output of the inception module is combined by concatenation and added back to the input of the inception module to form a short circuit or residual network. Finally, the IR+LSTM concludes with a dense layer to predict output with linear activation function. 
+The core of DNAcycP2 is a deep learning architecture mixed with an Inception-ResNet structure and an LSTM layer (IR+LSTM, Fig 2) that processes the sequence and its reverse complement separately, the results from which are averaged and detrended to reach the predicted intrinsic score. 
 
 ![A diagram of DNAcycP2.](./figures/Figure1.png)
 
@@ -50,25 +51,40 @@ IR+LSTM starts with a convolutional layer for dimension reduction such that the 
 Current best practice is to install via `devtools` and github:
 
 ```r
-devtools::install_github("brodykendall/dnacycp2-R")
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("DNAcycP2")
 ```
-
 
 ## Usage
 
-Upon successful installation, the DNAcycP2 R package supports the input sequence in two formats: FASTA format (with sequence name line beginning with “>”) or directly as an R object. Unlike in the web server version where only one sequence is allowed in input for prediction, the R package allows multiple sequences in the same input file/object. In particular for the R object format, each sequence (which can be of length >= 50bp) in the file is regarded as one input sequence for prediction, however the computation is most efficient when every sequence has length exactly 50bp.
+### Main Functions
 
-The two main functions in the package are `cycle` and `cycle_fasta`, both of which perform cyclizability prediction. The main difference between the two functions is the input type: `cycle` takes an R object as its input, while `cycle_fasta` takes a file path as its input. Both take an additional argument `smooth` which determines which model to use in making predictions:
-* `smooth=TRUE`: DNAcycP2 (the model trained on smoothed data, recommended) 
-* `smooth=FALSE`: DNAcycP (the model trained on the original data).
+The **DNAcycP2** R package provides two primary functions for cyclizability prediction:
+
+1. **`cycle`**: Takes an R object (vector of strings) as input. Each element in the vector is a DNA sequence.
+2. **`cycle_fasta`**: Takes the path of a fasta file as input.
+
+
+### Selecting the Prediction Model
+
+Both functions use the `smooth` argument to specify the prediction model:
+
+- **`smooth=TRUE`**: DNAcycP2 (trained on smoothed data, recommended).
+- **`smooth=FALSE`**: DNAcycP (trained on original data).
+
+### Parallelization with `cycle_fasta`
+
+The `cycle_fasta` function is designed for handling larger files and supports parallelization. To enable parallelization, use the following arguments:
+
+- **`n_cores`**: Number of cores to use (default: 1).
+- **`chunk_length`**: Sequence length (in bp) each core processes at a time (default: 100,000).
 
 The `cycle_fasta` function is designed for larger files, so it has added parallelization capability. To utilize this capability, specify the number of cores to be greater than 1 using the `n_cores` argument (default 1). You can also specify the length of the sequence that each core will predict on at a given time using the `chunk_length` argument (default 100000).
 
 For reference, on a personal computer (16 Gb RAM, M1 chip with 8-core CPU), prediction at full parallelization directly on the yeast genome FASTA file completes in 12 minutes, and on the hg38 human genome Chromosome I FASTA file in just over 4 hours. In our experience, selection of parallelization parameters (`n_cores` and `chunk_length`) has little affect when making predictions on a personal computer, but if using the package on a high-performance compute cluster, prediction time should decrease as the number of cores increases. If you do run into memory issues, we first suggest reducing `chunk_length`.
 
-We provide two simple example files with the package to show proper usage:
-
-### Example 1:
+### Example 1: fasta file input
 
 ```r
 ex1_file <- system.file("data", "ex1.fasta", package = "dnacycp2")
@@ -76,37 +92,12 @@ ex1_smooth <- dnacycp2::cycle_fasta(ex1_file,smooth=TRUE,n_cores=2,chunk_length=
 ex1_original <- dnacycp2::cycle_fasta(ex1_file,smooth=FALSE,n_cores=2,chunk_length=1000)
 ```
 
-`cycle_fasta` takes the file path as input (`ex1_file`)
+`cycle_fasta` takes the file path as input (`ex1_file`). `smooth=TRUE` specifies that DNAcycP2 be used to make predictions. `smooth=FALSE` specifies that DNAcycP be used to make predictions. `n_cores=2` specifies that 2 cores are to be used in parallel. `chunk_length=1000` specifies that each core will predict on sequences of length 1000 at a given time.
 
-`smooth=TRUE` specifies that DNAcycP2 be used to make predictions
 
-`smooth=FALSE` specifies that DNAcycP be used to make predictions
+The output (`ex1_smooth` or `ex1_original`) is a list with element names starting with "cycle" followed by the sequence names in the fasta file. For example, `ex1.fasta` contains two sequences with IDs "1" and "2" respectively. Therefore both both `ex1_smooth` and `ex1_original` will be lists of length 2 with names `cycle_1` and `cycle_2` for the first and second sequences respectively. 
 
-`n_cores=2` specifies that 2 cores are to be used in parallel
-
-`chunk_length=1000` specifies that each core will predict on sequences of length 1000 at a given time
-
-The output (`ex1_smooth` or `ex1_original`) is a list with names starting with "cycle"
-
-For example, `ex1.fasta` contains two sequences with IDs "1" and "2" respectively.
-
-Therefore, both `ex1_smooth` and `ex1_original` will be lists of length 2 with names `cycle_1` and `cycle_2` for the first and second sequences respectively.
-
-Each item in the list (e.g. `ex1_smooth$cycle_1`) is a data.frame object with three columns. The first columns is always `position`. When `smooth=TRUE`, the second and third columns are `C0S_norm` and `C0S_unnorm`, and when `smooth=FALSE` the second and third columns are `C0_norm` and `C0_unnorm`. The predicted C-score for either model is the normalized output (`C0S_norm` and `C0_norm`), the predictions from the model trained based on the standardized loop-seq score (in the case of DNAcycP) or the standardized smoothed intrinsic cyclizability estimate (in the case of DNAcycP2) of the Tiling library of Basu et al 2021 (i.e. 0 mean unit variance). When predictions are made using the original DNAcycP (`smooth=FALSE`), `C0_unnorm` is the predicted C-score recovered to the original scale of loop-seq score in the Tiling library data from Basu et el 2021. When predictions are made using the updated DNAcycP2 (`smooth=TRUE`), `C0S_unnorm` is the predicted C-score recovered to the scale of standardized raw cyclizability scores of the Tiling library data. The standardized scores provide two advantages. As loop-seq may be subject to a library-specific constant, standardized C-score is defined with a unified baseline as yeast genome (i.e. 0 mean in yeast genome). Secondly, the C-score provides statisitcal significance indicator, i.e. a C-score of 1.96 indicates 97.5% in the distribution.
-
-One further option is to save the predictions to output files. To do so, supply the path and output file basename to the `save_path` argument. For example:
-
-```r
-ex1_smooth <- dnacycp2::cycle_fasta(
-    ex1_file,
-    smooth=TRUE,
-    n_cores=2,
-    chunk_length=1000, 
-    save_path="ex1_smooth"
-)
-```
-
-This will execute the same predictions as previously, and additionally save two files named 'ex1_smooth_cycle_1.txt' and 'ex1_smooth_cycle_2.txt' (one file for each sequence) to the current working directory.
+Each item in the list (e.g. `ex1_smooth$cycle_1`) is a data.frame object with three columns. The first column is always `position`. When `smooth=TRUE`, the second and third columns are `C0S_norm` and `C0S_unnorm`, and when `smooth=FALSE` the second and third columns are `C0_norm` and `C0_unnorm`. 
 
 ### Example 2:
 
@@ -119,31 +110,31 @@ ex2_original <- dnacycp2::cycle(ex2$V1, smooth=FALSE)
 
 `cycle` takes the sequences themselves as input, so we first read the file (`ex2_file`) and then provide the sequences as input (`ex2$V1`)
 
-`smooth=TRUE` specifies that DNAcycP2 be used to make predictions
+The output (`ex2_smooth` or `ex2_original`) is a list with indices corresponding to each sequence from the `sequences` argument (here it is `ex2$V1`). For example, `ex2.txt` contains 100 sequences.
+Therefore, both `ex2_smooth` and `ex2_original` will be lists of length 100,  where each entry in the list corresponds to the sequence with its same index.
 
-`smooth=FALSE` specifies that DNAcycP be used to make predictions
+Each item in the list (e.g. `ex2_smooth[[1]]`) is a data.frame object with three columns. The first columns is always `position`. When `smooth=TRUE`, the second and third columns are `C0S_norm` and `C0S_unnorm`, and when `smooth=FALSE` the second and third columns are `C0_norm` and `C0_unnorm`. 
 
-The output (`ex2_smooth` or `ex2_original`) is a list with indices corresponding to each sequence from the `sequences` argument (here it is `ex2$V1`).
+### DNAcycP2 prediction -- Normalized vs unnormalized
 
-For example, `ex2.txt` contains 100 sequences.
-Therefore, both `ex2_smooth` and `ex2_original` will be lists of length 100, 
-where each entry in the list corresponds to the sequence with its same index.
+Both `cycle_fasta` and `cycle` output the prediction results in normalized (`C0_norm`,`C0S_norm`) and unnomralized (`C0_unnorm`,`C0S_unnorm`) version. 
 
-Each item in the list (e.g. `ex2_smooth[[1]]`) is a data.frame object with three columns. The first columns is always `position`. When `smooth=TRUE`, the second and third columns are `C0S_norm` and `C0S_unnorm`, and when `smooth=FALSE` the second and third columns are `C0_norm` and `C0_unnorm`. The predicted C-score for either model is the normalized output (`C0S_norm` and `C0_norm`), the predictions from the model trained based on the standardized loop-seq score (in the case of DNAcycP) or the standardized smoothed intrinsic cyclizability estimate (in the case of DNAcycP2) of the Tiling library of Basu et al 2021 (i.e. 0 mean unit variance). When predictions are made using the original DNAcycP (`smooth=FALSE`), `C0_unnorm` is the predicted C-score recovered to the original scale of loop-seq score in the Tiling library data from Basu et el 2021. When predictions are made using the updated DNAcycP2 (`smooth=TRUE`), `C0S_unnorm` is the predicted C-score recovered to the scale of standardized raw cyclizability scores of the Tiling library data. The standardized scores provide two advantages. As loop-seq may be subject to a library-specific constant, standardized C-score is defined with a unified baseline as yeast genome (i.e. 0 mean in yeast genome). Secondly, the C-score provides statisitcal significance indicator, i.e. a C-score of 1.96 indicates 97.5% in the distribution.
+In DNAcycP2, the predicted cyclizability always contains **normalized** and **unnormalized** values. the unnormalized results were based on the model trained on unnormalized $\hat C_0$ or $\hat C_0^s$ scores. In contrast, the normalized results were predicted by the model trained on the normalized $\hat C_0$ or $\hat C_0^s$ values.
+The cyclizability score from different loop-seq libraries may be subject to a systematic library-specific constant difference due to its definition (see  Basu et al 2021), and hence it's a relative measure and not directly comparable between libraries. The normalization will force the training data to have mean = 0 and standard deviation = 1 such that the 50 bp sequences from yeast genome roughly have mean = 0 and standard deviation = 1 for intrinsic cyclizabilty score. Thus for any sequence under prediciton, the normalized C-score can be more informative in terms of its cyclizabilty relative to the population. For example, the C-score provides statisitcal significance indicator, i.e. a C-score of 1.96 indicates 97.5% in the distribution.
 
-If every sequence has length exactly 50bp (recommended), the computation will perform significantly faster.
+### Save DNAcycP2 prediciton to external file
 
-Similar to the .fasta case, there is an option to save the predictions to output files. To do so, supply the path and output file basename to the `save_path` argument. For example:
+Both `cycle_fasta` and `cycle` provides an argument `save_path_prefix` to save the prediction results onto local hard drive. For example:
 
 ```r
 ex2_smooth <- dnacycp2::cycle(
     ex2$V1, 
     smooth=TRUE, 
-    save_path="ex2_smooth"
+    save_path_prefix="ex2_smooth"
 )
 ```
 
-This will execute the same predictions as previously, and additionally save two files named 'ex2_smooth_C0S_norm.txt' and 'ex2_smooth_C0S_unnorm.txt' to the current working directory. For consistency with the Python pacakge, ***it is important to note that these files have a different format than the function output.*** Namely, rather than writing a single file for every sequence, the function always writes two files (regardless of the number of sequences), one containing normalized predictions for every sequence (ending in 'C0S_norm.txt' or 'C0_norm.txt') and the other containing unnormalized predictions for every sequence (ending in 'C0S_unnorm.txt' or 'C0_unnorm.txt'). C-scores in each line correspond to the sequence from the `sequences` input in the same order.
+This will execute the same predictions as previously, and additionally save two files named 'ex2_smooth_C0S_norm.txt' and 'ex2_smooth_C0S_unnorm.txt' to the current working directory. The output files from `cycle_fasta` have the same format as the function output, but for consistency with the Python pacakge ***it is important to note that the output files from `cycle` have a different format than the function output.*** Namely, rather than writing a single file for every sequence, the function always writes two files (regardless of the number of sequences), one containing normalized predictions for every sequence (ending in 'C0S_norm.txt' or 'C0_norm.txt') and the other containing unnormalized predictions for every sequence (ending in 'C0S_unnorm.txt' or 'C0_unnorm.txt'). C-scores in each line correspond to the sequence from the `sequences` input in the same order.
 
 For any input sequence, DNAcycP2 predicts the C-score for every 50 bp. Regardless of the input sequence format the first C-score in the output file corresponds to the sequence from position 1-50, second for 2-51 and so forth.
 
@@ -199,6 +190,15 @@ Therefore, we can use a similar command to access the outputs for our subsequenc
 
 ```r
 ex3_txt_smooth[[1]][1:51,c("position", "C0S_norm")]
+```
+
+If there is a sequence (or group of sequences) we want to make predictions on, we can also input them directly as strings. For example:
+
+```r
+input_seq1 = "CATGACTGCAGCTAAAACGTTGACCTAGTCGTCAGTCTACGTACTAGCGTAGCTATATCGAGTCTAGCGTCTAG"
+input_seq2 = "ATCTTTTGTATATCAAAAGACTAGATCGATTAGCGTACGCCCCTGACTAGATAGATCG"
+seq1_smooth = dnacycp2::cycle(c(input_seq1), smooth=TRUE)
+both_seqs_smooth = dnacycp2::cycle(c(input_seq1, input_seq2), smooth=TRUE)
 ```
 
 ## Other References

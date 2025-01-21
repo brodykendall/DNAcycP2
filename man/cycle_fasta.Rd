@@ -9,7 +9,7 @@ cycle_fasta(
   smooth,
   n_cores = 1,
   chunk_length = 1e+05,
-  save_path = ""
+  save_path_prefix = ""
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ cycle_fasta(
 given time.
 (default=100000)}
 
-\item{save_path}{Base path for output files. If it is an empty string,
+\item{save_path_prefix}{Base path for output files. If it is an empty string,
 the output files will not be saved (default="")}
 }
 \value{
@@ -41,12 +41,12 @@ This predicts cyclizability for all subsequences of length 50bp from a
 .fasta input file.
 }
 \details{
-Optionally, saves output files (use argument 'save_path')
+Optionally, saves output files (use argument 'save_path_prefix')
 }
 \examples{
 # Example usage of cycle_fasta
 cycle_fasta(
     "path/to/fasta/file.fasta",smooth=TRUE, n_cores=2, chunk_length=50000,
-    save_path="path/to/output_files"
+    save_path_prefix="path/to/output_files"
 )
 }
