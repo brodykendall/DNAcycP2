@@ -26,8 +26,7 @@ cycle <- function(sequences, smooth, save_path_prefix="") {
         }
         else { irlstm <- system.file("python/irlstm", package = "dnacycp2") }
         X <- reticulate::import_from_path(
-            "dnacycp_python", path = path_to_python
-        )
+            "dnacycp_python", path = path_to_python)
         if (inherits(sequences, "AAStringSet") |
             inherits(sequences, "DNAStringSet")
         ) { sequences <- as.character(sequences) }

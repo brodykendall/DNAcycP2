@@ -97,7 +97,8 @@ DNAcycP results using DNAcycP2.
 
 ### Main Functions
 
-The **DNAcycP2** R package provides two primary functions for cyclizability prediction:
+The **DNAcycP2** R package provides two primary functions for cyclizability 
+prediction:
 
 1. **`cycle`**: Takes an R object (vector of strings) as input. Each element in 
 the vector is a DNA sequence.
@@ -116,7 +117,8 @@ The `cycle_fasta` function is designed for handling larger files and supports
 parallelization. To enable parallelization, use the following arguments:
 
 - **`n_cores`**: Number of cores to use (default: 1).
-- **`chunk_length`**: Sequence length (in bp) each core processes at a time (default: 100,000).
+- **`chunk_length`**: Sequence length (in bp) each core processes at a time 
+(default: 100,000).
 
 The `cycle_fasta` function is designed for larger files, so it has added 
 parallelization capability. To utilize this capability, specify the number of 
@@ -313,7 +315,8 @@ If there is a sequence (or group of sequences) we want to make predictions on,
 we can also input them directly as strings. For example:
 
 ```r
-input_seq1 = "CATGACTGCAGCTAAAACGTTGACCTAGTCGTCAGTCTACGTACTAGCGTAGCTATATCGAGTCTAGCGTCTAG"
+input_seq1 = 
+    "CATGACTGCAGCTAAAACGTTGACCTAGTCGTCAGTCTACGTACTAGCGTAGCTATATCGAGTCTAGCGTCTAG"
 input_seq2 = "ATCTTTTGTATATCAAAAGACTAGATCGATTAGCGTACGCCCCTGACTAGATAGATCG"
 seq1_smooth = dnacycp2::cycle(c(input_seq1), smooth=TRUE)
 both_seqs_smooth = dnacycp2::cycle(c(input_seq1, input_seq2), smooth=TRUE)
