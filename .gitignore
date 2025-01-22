@@ -8,3 +8,4 @@ inst/.DS_Store
 inst/python/.DS_Store
 dnacycp2.Rproj
 *.DS_Store
+*.ds_store
