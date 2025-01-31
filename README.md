@@ -52,7 +52,7 @@ The core of DNAcycP2 is a deep learning architecture mixed with an Inception-Res
 Current best practice is to install via `devtools` and github:
 
 ```r
-devtools::install_github("brodykendall/dnacycp2-R")
+devtools::install_github("brodykendall/dnacycp2")
 ```
 
 
