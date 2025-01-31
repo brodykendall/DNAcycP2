@@ -15,7 +15,6 @@ vignette: >
 
 **Maintainer**: Ji-Ping Wang, <<jzwang@northwestern.edu>>
 
-
 ```{r setup, include = FALSE}
 library(DNAcycP2)
 knitr::opts_chunk$set(
