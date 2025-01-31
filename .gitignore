@@ -6,6 +6,6 @@ inst/python/dnacycp_python/build/*
 inst/python/dnacycp_python/dnacycpv2_python.egg-info/*
 inst/.DS_Store
 inst/python/.DS_Store
-dnacycp2.Rproj
+DNAcycP2.Rproj
 *.DS_Store
 *.ds_store

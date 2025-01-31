@@ -20,11 +20,11 @@ cycle <- function(sequences, smooth, save_path_prefix="") {
     cl <- basiliskStart(env1)
     on.exit(basiliskStop(cl))
     preds <- basiliskRun(cl, fun=function(seqs) {
-        path_to_python <- system.file("python", package = "dnacycp2")
+        path_to_python <- system.file("python", package = "DNAcycP2")
         if (smooth) {
-            irlstm <- system.file("python/irlstm_smooth", package = "dnacycp2")
+            irlstm <- system.file("python/irlstm_smooth", package = "DNAcycP2")
         }
-        else { irlstm <- system.file("python/irlstm", package = "dnacycp2") }
+        else { irlstm <- system.file("python/irlstm", package = "DNAcycP2") }
         X <- reticulate::import_from_path(
             "dnacycp_python", path = path_to_python)
         if (inherits(sequences, "AAStringSet") |
@@ -107,12 +107,12 @@ cycle_fasta <- function(file_path, smooth, n_cores=1, chunk_length=100000,
     on.exit(basiliskStop(cl))
 
     preds <- basiliskRun(cl, fun=function(input_file) {
-        path_to_python <- system.file("python", package = "dnacycp2")
+        path_to_python <- system.file("python", package = "DNAcycP2")
         if (smooth) {
-            irlstm <- system.file("python/irlstm_smooth", package = "dnacycp2")
+            irlstm <- system.file("python/irlstm_smooth", package = "DNAcycP2")
         }
         else {
-            irlstm <- system.file("python/irlstm", package = "dnacycp2")
+            irlstm <- system.file("python/irlstm", package = "DNAcycP2")
         }
         X <- reticulate::import_from_path(
             "dnacycp_python", path = path_to_python

@@ -8,7 +8,7 @@ output:
         toc: true
         fig_width: 5
 vignette: >
-    %\VignetteIndexEntry{dnacycp2}
+    %\VignetteIndexEntry{DNAcycP2}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
@@ -17,7 +17,7 @@ vignette: >
 
 
 ```{r setup, include = FALSE}
-library(dnacycp2)
+library(DNAcycP2)
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>"
@@ -138,18 +138,18 @@ cores increases. If you do run into memory issues, we first suggest reducing
 
 
 ```{r}
-library(dnacycp2)
+library(DNAcycP2)
 ```
 
 
 ### Example 1: fasta file input
 
 ```{r}
-ex1_file <- system.file("data", "ex1.fasta", package = "dnacycp2")
-ex1_smooth <- dnacycp2::cycle_fasta(
+ex1_file <- system.file("data", "ex1.fasta", package = "DNAcycP2")
+ex1_smooth <- DNAcycP2::cycle_fasta(
     ex1_file, smooth=TRUE, n_cores=1, chunk_length=1000
 )
-ex1_original <- dnacycp2::cycle_fasta(
+ex1_original <- DNAcycP2::cycle_fasta(
     ex1_file, smooth=FALSE, n_cores=1, chunk_length=1000
 )
 ```
@@ -177,10 +177,10 @@ second and third columns are `C0S_norm` and `C0S_unnorm`, and when
 
 
 ```{r}
-ex2_file <- system.file("data", "ex2.txt", package = "dnacycp2")
+ex2_file <- system.file("data", "ex2.txt", package = "DNAcycP2")
 ex2 <- read.csv(ex2_file, header = FALSE)
-ex2_smooth <- dnacycp2::cycle(ex2$V1, smooth=TRUE)
-ex2_original <- dnacycp2::cycle(ex2$V1, smooth=FALSE)
+ex2_smooth <- DNAcycP2::cycle(ex2$V1, smooth=TRUE)
+ex2_original <- DNAcycP2::cycle(ex2$V1, smooth=FALSE)
 ```
 
 `cycle` takes the sequences themselves as input, so we first read the file 
@@ -226,7 +226,7 @@ Both `cycle_fasta` and `cycle` provides an argument `save_path_prefix` to save
 the prediction results onto local hard drive. For example:
 
 ```{r, eval=FALSE}
-ex2_smooth <- dnacycp2::cycle(
+ex2_smooth <- DNAcycP2::cycle(
     ex2$V1, 
     smooth=TRUE, 
     save_path_prefix="ex2_smooth"
@@ -261,10 +261,10 @@ First, we will consider the .fasta format:
 
 ```{r}
 ex3_fasta_file <- system.file(
-    "data", "ex3_single_seq.fasta", package = "dnacycp2"
+    "data", "ex3_single_seq.fasta", package = "DNAcycP2"
 )
-ex3_fasta_smooth <- dnacycp2::cycle_fasta(ex3_fasta_file,smooth=TRUE)
-ex3_fasta_original <- dnacycp2::cycle_fasta(ex3_fasta_file,smooth=FALSE)
+ex3_fasta_smooth <- DNAcycP2::cycle_fasta(ex3_fasta_file,smooth=TRUE)
+ex3_fasta_original <- DNAcycP2::cycle_fasta(ex3_fasta_file,smooth=FALSE)
 ```
 
 The output (`ex3_fasta_smooth` or `ex3_fasta_original`) is a list with
@@ -289,10 +289,10 @@ ex3_fasta_smooth$cycle_1[1:51,c("position", "C0S_norm")]
 Next, we will consider the .txt format:
 
 ```{r}
-ex3_txt_file <- system.file("data", "ex3_single_seq.txt", package = "dnacycp2")
+ex3_txt_file <- system.file("data", "ex3_single_seq.txt", package = "DNAcycP2")
 ex3_txt <- read.csv(ex3_txt_file, header = FALSE)
-ex3_txt_smooth <- dnacycp2::cycle(ex3_txt$V1, smooth=TRUE)
-ex3_txt_original <- dnacycp2::cycle(ex3_txt$V1, smooth=FALSE)
+ex3_txt_smooth <- DNAcycP2::cycle(ex3_txt$V1, smooth=TRUE)
+ex3_txt_original <- DNAcycP2::cycle(ex3_txt$V1, smooth=FALSE)
 ```
 
 The output (`ex3_txt_smooth` or `ex3_txt_original`) is a list with 1 entry 
@@ -318,8 +318,8 @@ we can also input them directly as strings. For example:
 input_seq1 = 
     "CATGACTGCAGCTAAAACGTTGACCTAGTCGTCAGTCTACGTACTAGCGTAGCTATATCGAGTCTAGCGTCTAG"
 input_seq2 = "ATCTTTTGTATATCAAAAGACTAGATCGATTAGCGTACGCCCCTGACTAGATAGATCG"
-seq1_smooth = dnacycp2::cycle(c(input_seq1), smooth=TRUE)
-both_seqs_smooth = dnacycp2::cycle(c(input_seq1, input_seq2), smooth=TRUE)
+seq1_smooth = DNAcycP2::cycle(c(input_seq1), smooth=TRUE)
+both_seqs_smooth = DNAcycP2::cycle(c(input_seq1, input_seq2), smooth=TRUE)
 ```
 
 ## References
